@@ -5,7 +5,7 @@
 #include <SFML/Window.hpp>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Block.h"
+#include "Block.cpp"
 
 #define RESOLUTION 512
 
@@ -20,7 +20,6 @@ float translation1[16], translation2[16], rotation[16], inc_rotation[16];
 void
 display()
 {
-	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//draw_color_cube();
 }
@@ -29,8 +28,6 @@ void
 update_Modelview_Matrix()
 {
 	glLoadIdentity();
-
-	glMatrixMode(GL_PROJECTION);
 	gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 9.0, 0.0, 1.0, 0.0);
 	glMultMatrixf(translation1);
 	glMultMatrixf(translation2);
@@ -45,17 +42,15 @@ void gfxinit()
 	// initialize the projection stack
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90.0, 1.0, 0.1, 400);
-	gluLookAt(RESOLUTION/2, 0, 10, RESOLUTION/2, RESOLUTION/2, -200, 0, 1, 0);
+	gluPerspective(90.0, 1.0, 0.1, 100);
 	
 	// initialize the modelview stack
 	glMatrixMode(GL_MODELVIEW);
+	//update_Modelview_Matrix();
 	glLoadIdentity();
-	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)translation1);
-	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)translation2);
-	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)rotation);
-	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)inc_rotation);
-	glClear(GL_CLEAR);
+	glClearColor(0,0,0, 1);
+	gluLookAt(0, 0, 10, 0, 0, -20, 0, 1, 0);
+	
 }
 
 
@@ -69,35 +64,37 @@ public:
 		gfxinit();
 		
 		Block level[5];
+		double a[] = {20, 0, -20};
+		double b[] = {20, 10, -20};
 
-		level[0] = Block(RESOLUTION/2, RESOLUTION/2, -210, RESOLUTION/2, (RESOLUTION/2) + 10, -210, 2);
-		level[1] = Block(0, 0, -20, 0, 10, -20, 2);		
+		level[0] = Block(a, b, 5);
+		//level[0] = Block(0, 0, -20, 0, 10, -20, 2);
+		/*level[1] = Block(0, 0, -20, 0, 10, -20, 2);		
 		level[2] = Block(0, 0, -200, 0, 10, -200, 2);
 		level[3] = Block(0, -10, -20, 0, 10, -20, 2);
 		level[4] = Block(-10, 0, -20, 10, 0, -2, 2);
-
+		*/
+		//level[0].toString();
 		while (App->IsOpened())
 		{
 			
 			App->SetActive();
 			
 			handleEvents();
-			
-			glMatrixMode(GL_MODELVIEW);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
 			glColor3f(1, 1, 0);
-			/*level[0].display();
-			level[1].display();
+			level[0].display();
+			/*glBegin(GL_TRIANGLES);
+			glVertex3d(0, 20, -20);
+			glVertex3d(0, 0, -20);
+			glVertex3d(10, 0, -20);
+			glEnd();*/
+			/*level[1].display();
 			level[2].display();
 			level[3].display();
-			level[4].display();*/
-			glBegin(GL_QUADS);
-				glVertex3d(0, 0, -20);
-				glVertex3d(0, RESOLUTION, -20);
-				glVertex3d(RESOLUTION, RESOLUTION, -20);
-				glVertex3d(RESOLUTION, 0, -20);
-			glEnd();
-
+			level[4].display();
+			*/
 			App->Display();
 		}
 	}
