@@ -1,25 +1,29 @@
 #include <SFML\Graphics.hpp>
 
-typedef struct {
+struct Point3{
 	double x;
 	double y;
 	double z;
-} Point3;
+
+	Point3(double a, double b, double c) 
+	{
+		x = a;
+		y = b;
+		z = c;
+	}
+
+	Point3(){}
+};
 
 class Block 
 {
 private:
-	Point3 p1;
-	Point3 p2;
-	Point3 p3;
-	Point3 p4;
-	Point3 p5;
-	Point3 p6;
-	Point3 p7;
-	Point3 p8;
-	bool horizontal;
-	int width1;
-	int width2;
+	Point3 center;
+	double width;
+	double height;
+	double depth;
+	double rotationMatrix[16];
+	double color[3];
 
 	
 	void getVert(Point3 p) {
@@ -36,61 +40,48 @@ private:
 public:
 	Block(){}
 
-	Block(double a1[], double a2[], int thickness1, int thickness2 = -1) {
-		width1 = thickness1;
-		if (thickness2 == -1)
-			width2 = width1;
-		else
-			width2 = thickness2;
+	Block(double *colors, double a1[], double w, double h, double d, double *rot) {
+		color[0] = colors[0];
+		color[1] = colors[1];
+		color[2] = colors[2];
 
-		if (a1[0] == a2[0])
+		center = Point3(a1[0], a1[1], a1[2]);
+		width = w;
+		height = h;
+		depth = d;
+
+		int i, j;
+		for (i = 0; i<16; i++)
 		{
-			horizontal = false;
-			Point3 temp = {a1[0]+width1, a1[1]-width1, a1[2]-width1};
-			p1 = temp;
-			Point3 temp1 = {a1[0]-width1, a1[1]-width1, a1[2]-width1};
-			p2 = temp1;
-			Point3 temp2 = {a1[0]+width1, a1[1]-width1, a1[2]+width1};
-			p3 = temp2;
-			Point3 temp3 = {a1[0]-width1, a1[1]-width1, a1[2]+width1};
-			p4 = temp3;
-			Point3 temp4 = {a2[0]+width2, a2[1]+width2, a2[2]-width2};
-			p5 = temp4;
-			Point3 temp5 = {a2[0]-width2, a2[1]+width2, a2[2]-width2};
-			p6 = temp5;
-			Point3 temp6 = {a2[0]+width2, a2[1]+width2, a2[2]+width2};
-			p7 = temp6;
-			Point3 temp7 = {a2[0]-width2, a2[1]+width2, a2[2]+width2};
-			p8 = temp7;
+			rotationMatrix[i] = rot[i];
 		}
-		else
-		{
-			horizontal = true;
-			Point3 p1 = {a1[0]-width1, a1[1]-width1, a1[2]-width1};
-			Point3 p2 = {a1[0]-width1, a1[1]+width1, a1[2]-width1};
-			Point3 p3 = {a1[0]-width1, a1[1]-width1, a1[2]+width1};
-			Point3 p4 = {a1[0]-width1, a1[1]+width1, a1[2]+width1};
-			Point3 p5 = {a2[0]+width2, a2[1]-width2, a2[2]-width2};
-			Point3 p6 = {a2[0]+width2, a2[1]+width2, a2[2]-width2};
-			Point3 p7 = {a2[0]+width2, a2[1]-width2, a2[2]+width2};
-			Point3 p8 = {a2[0]+width2, a2[1]+width2, a2[2]+width2};
-		}
+
 	}
 
-	Block (int a[8][3])
-	{
-		setPoint(p1, a[0]);
-		setPoint(p2, a[1]);
-		setPoint(p3, a[2]);
-		setPoint(p4, a[3]);
-		setPoint(p5, a[4]);
-		setPoint(p6, a[5]);
-		setPoint(p7, a[6]);
-		setPoint(p8, a[7]);
+	Block(double *colors, double a1[], double w, double h, double d, double theta, double phi) {
+		color[0] = colors[0];
+		color[1] = colors[1];
+		color[2] = colors[2];
+
+		center = Point3(a1[0], a1[1], a1[2]);
+		width = w;
+		height = h;
+		depth = d;
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		glRotated(phi, 0, 0, 1);
+		glRotated(theta, 0, 1, 0);
+		glGetFloatv(GL_MODELVIEW, (GLfloat*) rotationMatrix); //may be a flaw
+
 	}
 
+
+	//Deprecated
 	void display() 
 	{
+		glColor3dv(color);
 		//printf("Here");
 		glBegin(GL_POLYGON);
 		getVert(p1);
@@ -130,11 +121,6 @@ public:
 
 	void toString()
 	{
-		printf("Point: [%d, %d, %d]", p1.x, p2.y, p3.z);
-		Point3 p;
-		p.x = 0;
-		p.y = 1;
-		p.z = 2;
-		printf("Point: [%d, %d, %d]", p.x, p.y, p.z);
+		printf("Point: [%f, %f, %f]", p1.x, p1.y, p1.z);
 	}
 };

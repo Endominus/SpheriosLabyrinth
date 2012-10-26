@@ -5,7 +5,7 @@
 #include <SFML/Window.hpp>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Block.cpp"
+#include "Block.h"
 
 #define RESOLUTION 512
 
