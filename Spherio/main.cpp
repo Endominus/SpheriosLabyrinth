@@ -20,6 +20,7 @@ float translation1[16], translation2[16], rotation[16], inc_rotation[16];
 void
 display()
 {
+	glMatrixMode(GL_MODELVIEW);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//draw_color_cube();
 }
@@ -28,6 +29,8 @@ void
 update_Modelview_Matrix()
 {
 	glLoadIdentity();
+
+	glMatrixMode(GL_PROJECTION);
 	gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 9.0, 0.0, 1.0, 0.0);
 	glMultMatrixf(translation1);
 	glMultMatrixf(translation2);
@@ -48,6 +51,10 @@ void gfxinit()
 	// initialize the modelview stack
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	glGetFloatv(GL_MODELVIEW_MATRIX, translation1);
+	glGetFloatv(GL_MODELVIEW_MATRIX, translation2);
+	glGetFloatv(GL_MODELVIEW_MATRIX, rotation);
+	glGetFloatv(GL_MODELVIEW_MATRIX, inc_rotation);
 	glClear(GL_CLEAR);
 	
 }
