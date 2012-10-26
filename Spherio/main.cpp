@@ -51,12 +51,11 @@ void gfxinit()
 	// initialize the modelview stack
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glGetFloatv(GL_MODELVIEW_MATRIX, translation1);
-	glGetFloatv(GL_MODELVIEW_MATRIX, translation2);
-	glGetFloatv(GL_MODELVIEW_MATRIX, rotation);
-	glGetFloatv(GL_MODELVIEW_MATRIX, inc_rotation);
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)translation1);
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)translation2);
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)rotation);
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat *)inc_rotation);
 	glClear(GL_CLEAR);
-	
 }
 
 
@@ -84,12 +83,20 @@ public:
 			
 			handleEvents();
 			
+			glMatrixMode(GL_MODELVIEW);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glColor3f(1, 1, 0);
-			level[0].display();
+			/*level[0].display();
 			level[1].display();
 			level[2].display();
 			level[3].display();
-			level[4].display();
+			level[4].display();*/
+			glBegin(GL_QUADS);
+				glVertex3d(0, 0, -20);
+				glVertex3d(0, RESOLUTION, -20);
+				glVertex3d(RESOLUTION, RESOLUTION, -20);
+				glVertex3d(RESOLUTION, 0, -20);
+			glEnd();
 
 			App->Display();
 		}
