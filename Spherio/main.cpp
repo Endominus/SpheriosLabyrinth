@@ -67,10 +67,14 @@ public:
 		double a[] = {20, 0, -20};
 		double b[] = {20, 10, -20};
 
-		level[0] = Block(a, b, 5);
-		//level[0] = Block(0, 0, -20, 0, 10, -20, 2);
-		/*level[1] = Block(0, 0, -20, 0, 10, -20, 2);		
-		level[2] = Block(0, 0, -200, 0, 10, -200, 2);
+		double block1Color[3] = {1, 0, 0};
+		double block1Center[3] = {0, 0, 0};
+		level[0] = Block(block1Color, block1Center, 1, 1, 1, 45, 0);
+
+		double block2Color[3] = {0, 0, 1};
+		double block2Center[3] = {2, 0, 0};
+		level[1] = Block(block2Color, block2Center, 2, 2, 2, 0, 45);
+		/*level[2] = Block(0, 0, -200, 0, 10, -200, 2);
 		level[3] = Block(0, -10, -20, 0, 10, -20, 2);
 		level[4] = Block(-10, 0, -20, 10, 0, -2, 2);
 		*/
@@ -83,18 +87,10 @@ public:
 			handleEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			glColor3f(1, 1, 0);
-			level[0].display();
-			/*glBegin(GL_TRIANGLES);
-			glVertex3d(0, 20, -20);
-			glVertex3d(0, 0, -20);
-			glVertex3d(10, 0, -20);
-			glEnd();*/
-			/*level[1].display();
-			level[2].display();
-			level[3].display();
-			level[4].display();
-			*/
+			for (int i = 0; i < 2; ++i)
+			{
+				level[i].display();
+			}
 			App->Display();
 		}
 	}

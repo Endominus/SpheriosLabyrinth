@@ -25,9 +25,11 @@ private:
 	double rotationMatrix[16];
 	double color[3];
 
-	
-	void getVert(Point3 p) {
-		glVertex3d(p.x, p.y, p.z);
+	void displayFaceVertex(int x, int y, int z) {
+		double halfWidth = width / 2.0;
+		double halfHeight = height / 2.0;
+		double halfDepth = depth / 2.0;
+		glVertex3d(center.x + x*halfWidth, center.y + y*halfHeight, center.z + z*halfDepth);
 	}
 
 	void setPoint(Point3 p, int a[3])
@@ -58,12 +60,19 @@ public:
 
 	}
 
-	Block(double *colors, double a1[], double w, double h, double d, double theta, double phi) {
+	/* centerPoint = center of near plane of block
+	 * w = width of block
+	 * h = height of block
+	 * d = depth of block
+	 * theta = amount of rotation around the y axis
+	 * phi = amount of rotation around the z axis
+	 */
+	Block(double *colors, double centerPoint[], double w, double h, double d, double theta, double phi) {
 		color[0] = colors[0];
 		color[1] = colors[1];
 		color[2] = colors[2];
 
-		center = Point3(a1[0], a1[1], a1[2]);
+		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
 		width = w;
 		height = h;
 		depth = d;
@@ -73,54 +82,74 @@ public:
 		glLoadIdentity();
 		glRotated(phi, 0, 0, 1);
 		glRotated(theta, 0, 1, 0);
-		glGetFloatv(GL_MODELVIEW, (GLfloat*) rotationMatrix); //may be a flaw
-
+		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+		glPopMatrix();
 	}
 
 
-	//Deprecated
 	void display() 
 	{
+		//double currentMatrix[16];
+		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
+		glPushMatrix();
+
+		glTranslated(center.x, center.y, center.z);
+		glMultMatrixd(rotationMatrix);
+		glTranslated(-center.x, -center.y, -center.z);
+
 		glColor3dv(color);
-		//printf("Here");
-		glBegin(GL_POLYGON);
-		getVert(p1);
-		getVert(p2);
-		getVert(p3);
-		getVert(p4);
-		getVert(p8);
-		getVert(p2);
-		getVert(p6);
-		getVert(p1);
-		getVert(p5);
-		getVert(p7);
-		getVert(p6);
-		getVert(p8);
-		getVert(p7);
-		getVert(p3);
-		getVert(p1);
+
+		double halfWidth = width / 2.0;
+		double halfHeight = height / 2.0;
+		double halfDepth = depth / 2.0;
+		// Near face
+		glBegin(GL_QUADS);
+			displayFaceVertex(-1, -1, -1);
+			displayFaceVertex(1, -1, -1);
+			displayFaceVertex(1, 1, -1);
+			displayFaceVertex(-1, 1, -1);
 		glEnd();
 
-		/*glBegin(GL_TRIANGLES);
-		glVertex3d(p3.x, p3.y, p3.z);
-		glVertex3d(p4.x, p4.y, p4.z);
-		glVertex3d(p8.x, p8.y, p8.z);
-		//getVert(p3);
-		//getVert(p4);
-		//getVert(p8);
-		glEnd();*/
-		/*
-		glBegin(GL_TRIANGLES);
-		glVertex3d(0, 20, -10);
-		glVertex3d(0, 0, -10);
-		glVertex3d(10, 0, -10);
+		// Far face
+		glBegin(GL_QUADS);
+			displayFaceVertex(-1, -1, 1);
+			displayFaceVertex(1, -1, 1);
+			displayFaceVertex(1, 1, 1);
+			displayFaceVertex(-1, 1, 1);
 		glEnd();
-		*/
-		
-	}
 
-	void toString()
-	{
-		printf("Point: [%f, %f, %f]", p1.x, p1.y, p1.z);
+		// Top face
+		glBegin(GL_QUADS);
+			displayFaceVertex(-1, 1, -1);
+			displayFaceVertex(1, 1, -1);
+			displayFaceVertex(1, 1, 1);
+			displayFaceVertex(-1, 1, 1);
+		glEnd();
+
+		// Bottom face
+		glBegin(GL_QUADS);
+			displayFaceVertex(-1, -1, -1);
+			displayFaceVertex(1, -1, -1);
+			displayFaceVertex(1, -1, 1);
+			displayFaceVertex(-1, -1, 1);
+		glEnd();
+
+		// Right face
+		glBegin(GL_QUADS);
+			displayFaceVertex(1, 1, -1);
+			displayFaceVertex(1, -1, -1);
+			displayFaceVertex(1, -1, 1);
+			displayFaceVertex(1, 1, 1);
+		glEnd();
+
+		// Left face
+		glBegin(GL_QUADS);
+			displayFaceVertex(-1, 1, -1);
+			displayFaceVertex(-1, -1, -1);
+			displayFaceVertex(-1, -1, 1);
+			displayFaceVertex(-1, 1, 1);
+		glEnd();
+
+		glPopMatrix();
 	}
 };
