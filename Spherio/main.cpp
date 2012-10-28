@@ -12,27 +12,24 @@
 #define TRUE 1
 #define FALSE 0
 
-//int buttonDown[3] = {0,0};
-
 // Storage space for the various transformations we'll need
-float translation1[16], translation2[16], rotation[16], inc_rotation[16];
+double translationMatrix[16], inverseTranslationMatrix[16], rotationMatrix[16];
 
 void
 display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//draw_color_cube();
 }
 
-void
+/*void
 update_Modelview_Matrix()
 {
 	glLoadIdentity();
 	gluLookAt(0.0, 0.0, 10.0, 0.0, 0.0, 9.0, 0.0, 1.0, 0.0);
-	glMultMatrixf(translation1);
-	glMultMatrixf(translation2);
-	glMultMatrixf(rotation);
-}
+	glMultMatrixd(translation1);
+	glMultMatrixd(translation2);
+	glMultMatrixd(rotation);
+}*/
 
 
 void gfxinit()
@@ -46,11 +43,14 @@ void gfxinit()
 	
 	// initialize the modelview stack
 	glMatrixMode(GL_MODELVIEW);
-	//update_Modelview_Matrix();
 	glLoadIdentity();
+	glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+	glTranslated(0, 0, -5);
+	glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &translationMatrix);
+	glTranslated(0, 0, 10);
+	glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &inverseTranslationMatrix);
 	glClearColor(0,0,0, 1);
-	gluLookAt(0, 0, 10, 0, 0, -20, 0, 1, 0);
-	
+	gluLookAt(0, 0, 0, 0, 0, -20, 0, 1, 0);
 }
 
 
@@ -61,6 +61,9 @@ public:
 	{
 		App = new sf::Window(sf::VideoMode(RESOLUTION, RESOLUTION, 32), "Spherio");
 		
+		cameraLookMode = false;
+		lastPos[0] = -1;
+		lastPos[1] = -1;
 		gfxinit();
 		
 		Block level[5];
@@ -68,11 +71,11 @@ public:
 		double b[] = {20, 10, -20};
 
 		double block1Color[3] = {1, 0, 0};
-		double block1Center[3] = {0, 0, 0};
+		double block1Center[3] = {0, 0, -5};
 		level[0] = Block(block1Color, block1Center, 1, 1, 1, 45, 0);
 
 		double block2Color[3] = {0, 0, 1};
-		double block2Center[3] = {2, 0, 0};
+		double block2Center[3] = {2, 0, -5};
 		level[1] = Block(block2Color, block2Center, 2, 2, 2, 0, 45);
 		/*level[2] = Block(0, 0, -200, 0, 10, -200, 2);
 		level[3] = Block(0, -10, -20, 0, 10, -20, 2);
@@ -87,6 +90,7 @@ public:
 			handleEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
+			updateModelviewMatrix();
 			for (int i = 0; i < 2; ++i)
 			{
 				level[i].display();
@@ -98,7 +102,18 @@ public:
 private:
 	sf::Window *App;
 	sf::Clock motionClock;
-	float timeSinceMotion;
+	int lastPos[2];
+	bool cameraLookMode;
+
+	void updateModelviewMatrix()
+	{
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+		glMultMatrixd(inverseTranslationMatrix);
+		glMultMatrixd(rotationMatrix);
+		glMultMatrixd(translationMatrix);
+		gluLookAt(0, 0, 0, 0, 0, -20, 0, 1, 0);
+	}
 	
 	void handleEvents()
 	{
@@ -115,6 +130,30 @@ private:
 			if ((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::Escape))
 				App->Close();
 			
+			if (cameraLookMode && Event.Type == sf::Event::MouseMoved)
+			{
+				int deltaX = Event.MouseMove.X - lastPos[0];
+				int deltaY = Event.MouseMove.Y - lastPos[1];
+
+				glPushMatrix();
+				glLoadIdentity();
+				glMultMatrixd(rotationMatrix);
+				glRotated(deltaX, 0, 1, 0);
+				glRotated(deltaY, 1, 0, 0);
+				glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+				glPopMatrix();
+
+				lastPos[0] = Event.MouseMove.X;
+				lastPos[1] = Event.MouseMove.Y;
+			}
+
+			if (Event.Type == sf::Event::MouseButtonPressed
+				  && Event.MouseButton.Button == sf::Mouse::Left)
+			{
+				lastPos[0] = Event.MouseButton.X;
+				lastPos[1] = Event.MouseButton.Y;
+				cameraLookMode = !cameraLookMode;
+			}
 		}
 	}
 };

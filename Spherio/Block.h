@@ -52,7 +52,7 @@ public:
 		height = h;
 		depth = d;
 
-		int i, j;
+		int i;
 		for (i = 0; i<16; i++)
 		{
 			rotationMatrix[i] = rot[i];
