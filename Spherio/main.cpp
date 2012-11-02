@@ -64,6 +64,8 @@ public:
 		cameraLookMode = false;
 		lastPos[0] = -1;
 		lastPos[1] = -1;
+		cameraTheta = 0;
+		cameraPhi = 0;
 		gfxinit();
 		
 		Block level[5];
@@ -72,11 +74,11 @@ public:
 
 		double block1Color[3] = {1, 0, 0};
 		double block1Center[3] = {0, 0, -5};
-		level[0] = Block(block1Color, block1Center, 1, 1, 1, 45, 0);
+		level[0] = Block(block1Color, block1Center, 0.5, 0.5, 0.5, 45, 0);
 
 		double block2Color[3] = {0, 0, 1};
 		double block2Center[3] = {2, 0, -5};
-		level[1] = Block(block2Color, block2Center, 2, 2, 2, 0, 45);
+		level[1] = Block(block2Color, block2Center, 1, 1, 1, 0, 45);
 		/*level[2] = Block(0, 0, -200, 0, 10, -200, 2);
 		level[3] = Block(0, -10, -20, 0, 10, -20, 2);
 		level[4] = Block(-10, 0, -20, 10, 0, -2, 2);
@@ -90,7 +92,7 @@ public:
 			handleEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			updateModelviewMatrix();
+			updateProjectionMatrix();
 			for (int i = 0; i < 2; ++i)
 			{
 				level[i].display();
@@ -104,15 +106,29 @@ private:
 	sf::Clock motionClock;
 	int lastPos[2];
 	bool cameraLookMode;
+	double cameraTheta;
+	double cameraPhi;
 
 	void updateModelviewMatrix()
 	{
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glMultMatrixd(inverseTranslationMatrix);
-		glMultMatrixd(rotationMatrix);
 		glMultMatrixd(translationMatrix);
+		glMultMatrixd(rotationMatrix);
+		glMultMatrixd(inverseTranslationMatrix);
 		gluLookAt(0, 0, 0, 0, 0, -20, 0, 1, 0);
+	}
+
+	void updateProjectionMatrix()
+	{
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		//glMultMatrixd(translationMatrix);
+		//glMultMatrixd(rotationMatrix);
+		//glMultMatrixd(inverseTranslationMatrix);
+		glRotated(cameraTheta, 0, 1, 0);
+		glRotated(cameraPhi, 0, 0, 1);
+		//gluLookAt(0, 0, 0, 0, 0, -20, 0, 1, 0);
 	}
 	
 	void handleEvents()
@@ -135,13 +151,16 @@ private:
 				int deltaX = Event.MouseMove.X - lastPos[0];
 				int deltaY = Event.MouseMove.Y - lastPos[1];
 
-				glPushMatrix();
+				/*glPushMatrix();
 				glLoadIdentity();
-				glMultMatrixd(rotationMatrix);
-				glRotated(deltaX, 0, 1, 0);
 				glRotated(deltaY, 1, 0, 0);
+				glRotated(deltaX, 0, 1, 0);
+				glMultMatrixd(rotationMatrix);
 				glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
-				glPopMatrix();
+				glPopMatrix();*/
+
+				cameraTheta -= deltaX % 180;
+				cameraPhi += deltaY % 180;
 
 				lastPos[0] = Event.MouseMove.X;
 				lastPos[1] = Event.MouseMove.Y;

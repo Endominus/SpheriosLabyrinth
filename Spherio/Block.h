@@ -26,10 +26,7 @@ private:
 	double color[3];
 
 	void displayFaceVertex(int x, int y, int z) {
-		double halfWidth = width / 2.0;
-		double halfHeight = height / 2.0;
-		double halfDepth = depth / 2.0;
-		glVertex3d(center.x + x*halfWidth, center.y + y*halfHeight, center.z + z*halfDepth);
+		glVertex3d(x, y, z);
 	}
 
 	void setPoint(Point3 p, int a[3])
@@ -80,8 +77,10 @@ public:
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-		glRotated(phi, 0, 0, 1);
+		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
 		glRotated(theta, 0, 1, 0);
+		glRotated(phi, 0, 0, 1);
+		glScaled(w, h, d);
 		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
 		glPopMatrix();
 	}
@@ -91,11 +90,11 @@ public:
 	{
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
+		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
-
-		glTranslated(center.x, center.y, center.z);
+		
+		//glLoadIdentity();
 		glMultMatrixd(rotationMatrix);
-		glTranslated(-center.x, -center.y, -center.z);
 
 		glColor3dv(color);
 
@@ -149,7 +148,7 @@ public:
 			displayFaceVertex(-1, -1, 1);
 			displayFaceVertex(-1, 1, 1);
 		glEnd();
-
+		
 		glPopMatrix();
 	}
 };
