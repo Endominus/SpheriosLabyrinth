@@ -98,10 +98,8 @@ public:
 
 		glColor3dv(color);
 
-		double halfWidth = width / 2.0;
-		double halfHeight = height / 2.0;
-		double halfDepth = depth / 2.0;
 		// Near face
+		glColor3d(1, 1, 1);
 		glBegin(GL_QUADS);
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(1, -1, -1);
@@ -110,6 +108,8 @@ public:
 		glEnd();
 
 		// Far face
+		
+		glColor3d(0.5, 0.5, 0.5);
 		glBegin(GL_QUADS);
 			displayFaceVertex(-1, -1, 1);
 			displayFaceVertex(1, -1, 1);
@@ -118,6 +118,7 @@ public:
 		glEnd();
 
 		// Top face
+		glColor3d(1, 0, 0);
 		glBegin(GL_QUADS);
 			displayFaceVertex(-1, 1, -1);
 			displayFaceVertex(1, 1, -1);
@@ -126,6 +127,7 @@ public:
 		glEnd();
 
 		// Bottom face
+		glColor3d(0, 1, 1);
 		glBegin(GL_QUADS);
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(1, -1, -1);
@@ -134,6 +136,7 @@ public:
 		glEnd();
 
 		// Right face
+		glColor3d(0, 1, 0);
 		glBegin(GL_QUADS);
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(1, -1, -1);
@@ -142,6 +145,7 @@ public:
 		glEnd();
 
 		// Left face
+		glColor3d(1, 0, 1);
 		glBegin(GL_QUADS);
 			displayFaceVertex(-1, 1, -1);
 			displayFaceVertex(-1, -1, -1);
