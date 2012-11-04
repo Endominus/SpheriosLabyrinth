@@ -149,6 +149,14 @@ struct Point3{
 	Point3(){}
 };
 
+void vectorTransform(double transform[16],double input[4],double output[4]) {
+		output[3] = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
+		output[0] = (transform[0]*input[0]+transform[1]*input[1]+transform[2]*input[2]+transform[3]*input[3])/output[3];
+		output[1] = (transform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/output[3];
+		output[2] = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/output[3];
+		output[3] = 1;
+	}
+
 class Block 
 {
 protected:
@@ -223,15 +231,17 @@ public:
 		glColor3dv(color);
 
 //		glColor3d(1, 1, 1);
-		glBegin(GL_QUADS);
-			// Near face
+		/*glBegin(GL_QUADS);
+			// Far face
+			glNormal3d(0,0,-1);
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(1, -1, -1);
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(-1, 1, -1);
 		
 //		glColor3d(0.5, 0.5, 0.5);
-			// Far face
+			// Near face
+			glNormal3d(0,0,1);
 			displayFaceVertex(-1, -1, 1);
 			displayFaceVertex(1, -1, 1);
 			displayFaceVertex(1, 1, 1);
@@ -239,6 +249,7 @@ public:
 
 //		glColor3d(1, 0, 0);
 			// Top face
+			glNormal3d(0,1,0);
 			displayFaceVertex(-1, 1, -1);
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(1, 1, 1);
@@ -246,6 +257,7 @@ public:
 
 //		glColor3d(0, 1, 1);
 			// Bottom face
+			glNormal3d(0,-1,0);
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(1, -1, -1);
 			displayFaceVertex(1, -1, 1);
@@ -253,6 +265,7 @@ public:
 
 //		glColor3d(0, 1, 0);
 			// Right face
+			glNormal3d(1,0,0);
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(1, -1, -1);
 			displayFaceVertex(1, -1, 1);
@@ -260,6 +273,7 @@ public:
 
 //		glColor3d(1, 0, 1);
 			// Left face
+			glNormal3d(-1,0,0);
 			displayFaceVertex(-1, 1, -1);
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(-1, -1, 1);
@@ -294,7 +308,15 @@ public:
 			glVertex3d(-1-d,1+d,-1-d);
 			glVertex3d(-1-d,-1-d,1+d);
 			glVertex3d(-1-d,1+d,1+d);
-		glEnd();
+		glEnd();*/
+
+		double corners[4] = {1, 1, 1, 1};
+		double transformedCorners[4] = {1, 1, 1, 1};
+		double inverse[16];
+		gluInvertMatrix(rotationMatrix, inverse);
+
+		vectorTransform(inverse, corners, transformedCorners);
+		glVertex3dv(transformedCorners);
 		glPopMatrix();
 	}
 };
@@ -326,13 +348,7 @@ public:
 //		center.z+=velocity[2];
 	}
 
-	void vectorTransform(double transform[16],double input[4],double output[4]) {
-		output[3] = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
-		output[0] = (transform[0]*input[0]+transform[1]*input[1]+transform[2]*input[2]+transform[3]*input[3])/output[3];
-		output[1] = (transform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/output[3];
-		output[2] = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/output[3];
-		output[3] = 1;
-	}
+	
 
 /*	double evaluateQuadric(double quadric[16],double x,double y,double z){
 		return quadric[0]*x*x+(quadric[1]+quadric[4])*x*y+(quadric[2]+quadric[8])*x*z+(quadric[3]+quadric[12])*x+quadric[5]*y*y+(quadric[6]+quadric[9])*y*z+(quadric[7]+quadric[13])*y+quadric[10]*z*z+(quadric[11]+quadric[14])*z+quadric[15];
