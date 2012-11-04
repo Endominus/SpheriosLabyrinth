@@ -1,4 +1,5 @@
 
+#include "ShaderManager.h"
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,6 +64,8 @@ public:
 	GLBox()
 	{
 		App = new sf::Window(sf::VideoMode(RESOLUTION, RESOLUTION, 32), "Spherio");
+
+		//glEnable(GL_LIGHTING);
 		
 		cameraLookMode = false;
 		lastPos[0] = -1;
@@ -89,15 +92,31 @@ public:
 		level[4] = Block(-10, 0, -20, 10, 0, -2, 2);
 		*/
 		//level[0].toString();
+
+		FILE * logFile;
+		logFile = fopen("log.txt", "wb");
+		if(logFile == NULL)
+		{
+			printf("Unable to open log file. Exiting...\n");
+			exit(2);
+		}
+		
+		__glewInit(logFile);
+		ShaderManager shaders = ShaderManager(logFile);
+		
+		const char * vertPath = "Shaders/Render3dModel.vert";
+		const char * fragPath = "Shaders/Render3dModel.frag";
+		prog = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
 		while (App->IsOpened())
 		{
-			
 			App->SetActive();
 			
 			handleEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			updateModelviewMatrix();
+			//glUseProgram(prog);
+			setShaderVariables(prog);
 			for (int i = 0; i < 1; ++i)
 			{
 				level[i].display();
@@ -118,6 +137,8 @@ private:
 	double cameraPhi;
 	double tiltX;
 	double tiltZ;
+	GLint prog;
+	bool GL20Support;
 
 	void updateModelviewMatrix()
 	{
@@ -205,6 +226,74 @@ private:
 		}
 		ball.accelerate(tiltX*0.0001,0.0001,0.0001*tiltZ);
 		ball.testCollision(level[0]);
+	}
+
+	void __glewInit(FILE * logFile)
+	{
+		GL20Support = false;
+		GLenum err = glewInit();
+		if (GLEW_OK != err)
+		{
+			/* Problem: glewInit failed, something is seriously wrong. */
+			fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+			fprintf(logFile, "Error: %s\n", glewGetErrorString(err));
+		}
+		else
+		{
+			printf("GLEW init finished...\n");
+			fprintf(logFile, "GLEW init finished...\n");
+			if( __GLEW_VERSION_2_0 )
+			{
+				printf("OpenGL 2.0 is supported. Shaders should run correctly.\n");
+				fprintf(logFile, "OpenGL 2.0 is supported. Shaders should run correctly.\n");
+				GL20Support = true;
+			}
+			else
+			{
+				printf("OpenGL 2.0 is NOT enabled. The program may not work correctly.\n");
+				fprintf(logFile, "OpenGL 2.0 is NOT enabled. The program may not work correctly.\n");
+			}
+			
+			if( GLEW_ARB_vertex_program )
+			{
+				printf("ARB vertex programs supported.\n");
+				fprintf(logFile, "ARB vertex programs supported.\n");
+			}
+			else
+			{
+				printf("ARB vertex programs NOT supported. The program may not work correctly.\n");
+				fprintf(logFile, "ARB vertex programs NOT supported. The program may not work correctly.\n");
+			}
+			if( GLEW_ARB_fragment_program )
+			{
+				printf("ARB fragment programs supported.\n");
+				fprintf(logFile, "ARB fragment programs supported.\n");
+			}
+			else
+			{
+				printf("ARB fragment programs NOT supported. The program may not work correctly.\n");
+				fprintf(logFile, "ARB fragment programs NOT supported. The program may not work correctly.\n");
+			}
+		}
+	}
+
+	void setShaderVariables(GLuint shaderProg)
+	{
+		GLfloat projMatrix[16];
+		GLfloat viewMatrix[16];
+		glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
+		glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix);
+		
+		if(GL20Support)
+		{
+			glUniformMatrix4fv(glGetUniformLocation(shaderProg, "projMatrix"), 1, false, projMatrix);
+			glUniformMatrix4fv(glGetUniformLocation(shaderProg, "viewMatrix"), 1, false, viewMatrix);
+		}
+		else
+		{
+			glUniformMatrix4fvARB(glGetUniformLocationARB(shaderProg, "projMatrix"), 1, false, projMatrix);
+			glUniformMatrix4fvARB(glGetUniformLocationARB(shaderProg, "viewMatrix"), 1, false, viewMatrix);
+		}
 	}
 };
 
