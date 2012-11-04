@@ -65,7 +65,7 @@ public:
 	{
 		App = new sf::Window(sf::VideoMode(RESOLUTION, RESOLUTION, 32), "Spherio");
 
-		//glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
 		
 		cameraLookMode = false;
 		lastPos[0] = -1;
@@ -82,8 +82,13 @@ public:
 		double block1Center[3] = {0, 0, 0};
 		level[0] = Block(block1Color, block1Center, 4, 1, 4, 0, 0);
 		double ballColor[3] = {0,1,1};
+<<<<<<< HEAD
 		double ballCenter[3] = {0,.7,0};
 		ball = Sphere(ballColor,ballCenter,0.1);
+=======
+		double ballCenter[3] = {0,1,0};
+		ball = Sphere(ballColor,ballCenter,0.314159);
+>>>>>>> Oh God I hope this works.
 
 		//double block2Color[3] = {0, 0, 1};
 		//double block2Center[3] = {2, 0, -5};
@@ -116,7 +121,7 @@ public:
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			updateModelviewMatrix();
-			//glUseProgram(prog);
+			glUseProgram(prog);
 			setShaderVariables(prog);
 			for (int i = 0; i < 1; ++i)
 			{

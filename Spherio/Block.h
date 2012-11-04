@@ -1,4 +1,5 @@
 #include <SFML\Graphics.hpp>
+#include <gl\glut.h>
 
 void transposeMatrix(double m[16],double output[16]) {
 	for(int i=0;i<4;i++)
@@ -174,6 +175,14 @@ protected:
 		p.z = a[2];
 	}
 
+	void subtractVectors(double vec[4], double vec2[4], double output[4]) 
+	{
+		output[0] = vec[0] - vec2[0];
+		output[1] = vec[1] - vec2[1];
+		output[2] = vec[2] - vec2[2];
+		output[3] = 1;
+	}
+
 public:
 	double rotationMatrix[16];
 	Block(){}
@@ -226,9 +235,10 @@ public:
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		
-		glMultMatrixd(rotationMatrix);
+		//glMultMatrixd(rotationMatrix);
 
 		glColor3dv(color);
+		//glColor3d(1,1,1);
 
 //		glColor3d(1, 1, 1);
 		/*glBegin(GL_QUADS);
@@ -309,14 +319,56 @@ public:
 			glVertex3d(-1-d,-1-d,1+d);
 			glVertex3d(-1-d,1+d,1+d);
 		glEnd();*/
+		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},{0,0,1,1},{0,0,-1,1},{0,1,0,1},{0,-1,0,1},{-1,0,0,1},{1,0,0,1},{0,0,0,1}};
+		double transformedCorners[15][4];
+		double transpose[16];
+		transposeMatrix(rotationMatrix, transpose);
 
-		double corners[4] = {1, 1, 1, 1};
-		double transformedCorners[4] = {1, 1, 1, 1};
-		double inverse[16];
-		gluInvertMatrix(rotationMatrix, inverse);
+		for(int i=0;i<15;i++)
+			vectorTransform(transpose, corners[i], transformedCorners[i]);
 
-		vectorTransform(inverse, corners, transformedCorners);
-		glVertex3dv(transformedCorners);
+		for (int j = 8; j < 14; j++)
+		{
+			subtractVectors(corners[j], corners[14], corners[j]);
+		}
+
+		glBegin(GL_QUADS);
+			glNormal3dv(corners[8]);
+			glVertex3dv(transformedCorners[0]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[3]);
+			glVertex3dv(transformedCorners[2]);
+			
+			glNormal3dv(corners[9]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[6]);
+			glVertex3dv(transformedCorners[7]);
+			
+			glNormal3dv(corners[10]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[0]);
+			
+			glNormal3dv(corners[11]);
+			glVertex3dv(transformedCorners[2]);
+			glVertex3dv(transformedCorners[3]);
+			glVertex3dv(transformedCorners[7]);
+			glVertex3dv(transformedCorners[6]);
+			
+			glNormal3dv(corners[12]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[0]);
+			glVertex3dv(transformedCorners[2]);
+			glVertex3dv(transformedCorners[6]);
+			
+			glNormal3dv(corners[13]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[7]);
+			glVertex3dv(transformedCorners[3]);
+		glEnd();
 		glPopMatrix();
 	}
 };
@@ -431,9 +483,9 @@ public:
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glTranslated(center.x,center.y,center.z);
-		glScaled(radius,radius,radius);
+		//glScaled(radius,radius,radius);
 		glColor3dv(color);
-		glBegin(GL_TRIANGLES);
+		/*glBegin(GL_TRIANGLES);
 			glVertex3d(0,0,1);
 			glVertex3d(1,0,0);
 			glVertex3d(0,1,0);
@@ -459,7 +511,8 @@ public:
 			glVertex3d(-1,0,0);
 			glVertex3d(0,-1,0);
 			glVertex3d(0,0,1);
-		glEnd();
+		glEnd();*/
+		glutSolidSphere(radius, 10, 10);
 		glPopMatrix();
 	}
 };

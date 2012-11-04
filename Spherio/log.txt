@@ -7,8 +7,14 @@ Shader info log for:
 
 Shader info log for:
   Shaders/Render3dModel.frag
+0(13) : warning C7011: implicit cast from "int" to "float"
+0(15) : warning C7011: implicit cast from "int" to "float"
 
 Shader program info log for:
   Shaders/Render3dModel.vert
   Shaders/Render3dModel.frag
+Fragment info
+-------------
+0(13) : warning C7011: implicit cast from "int" to "float"
+0(15) : warning C7011: implicit cast from "int" to "float"
 

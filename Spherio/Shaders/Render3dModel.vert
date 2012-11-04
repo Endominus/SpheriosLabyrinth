@@ -6,7 +6,7 @@
 uniform mat4 projMatrix;  //projection matrix
 uniform mat4 viewMatrix;  //view matrix (camera)
 
-varying vec4 normal;  //normal that will be interpolated for the fragment shader
+varying vec3 normal;  //normal that will be interpolated for the fragment shader
 varying vec4 vertex;
 varying vec3 lightPos;
 
@@ -14,12 +14,9 @@ varying vec3 lightPos;
 void main()
 {	
 	vertex = gl_Vertex;
-	vertex = gl_ModelViewProjectionMatrix * vertex;  //use the uploaded matrix data
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;  //output the transformed vertex
-	lightPos = vec3(0,2, -5);
-	vec4 newNorm = vec4(gl_Normal[0], gl_Normal[1], gl_Normal[2], 0);
-	normal = normalize(gl_ModelViewProjectionMatrix * newNorm);
-	//normal = vec4(gl_Normal[0], gl_Normal[1], gl_Normal[2], 1);
+	lightPos = vec3(0,2,0);
+	normal = gl_Normal;
 	gl_FrontColor = gl_Color;
-	//gl_BackColor = vec4(1, 0, 0, 1);
+	gl_BackColor = gl_Color;
 }
