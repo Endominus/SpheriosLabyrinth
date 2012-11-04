@@ -1,5 +1,139 @@
 #include <SFML\Graphics.hpp>
 
+void transposeMatrix(double m[16],double output[16]) {
+	for(int i=0;i<4;i++)
+		for(int j=0;j<4;j++)
+			output[i*4+j]=m[j*4+i];
+}
+bool gluInvertMatrix(const double m[16], double invOut[16])
+{
+    double inv[16], det;
+    int i;
+
+    inv[0] = m[5]  * m[10] * m[15] - 
+             m[5]  * m[11] * m[14] - 
+             m[9]  * m[6]  * m[15] + 
+             m[9]  * m[7]  * m[14] +
+             m[13] * m[6]  * m[11] - 
+             m[13] * m[7]  * m[10];
+
+    inv[4] = -m[4]  * m[10] * m[15] + 
+              m[4]  * m[11] * m[14] + 
+              m[8]  * m[6]  * m[15] - 
+              m[8]  * m[7]  * m[14] - 
+              m[12] * m[6]  * m[11] + 
+              m[12] * m[7]  * m[10];
+
+    inv[8] = m[4]  * m[9] * m[15] - 
+             m[4]  * m[11] * m[13] - 
+             m[8]  * m[5] * m[15] + 
+             m[8]  * m[7] * m[13] + 
+             m[12] * m[5] * m[11] - 
+             m[12] * m[7] * m[9];
+
+    inv[12] = -m[4]  * m[9] * m[14] + 
+               m[4]  * m[10] * m[13] +
+               m[8]  * m[5] * m[14] - 
+               m[8]  * m[6] * m[13] - 
+               m[12] * m[5] * m[10] + 
+               m[12] * m[6] * m[9];
+
+    inv[1] = -m[1]  * m[10] * m[15] + 
+              m[1]  * m[11] * m[14] + 
+              m[9]  * m[2] * m[15] - 
+              m[9]  * m[3] * m[14] - 
+              m[13] * m[2] * m[11] + 
+              m[13] * m[3] * m[10];
+
+    inv[5] = m[0]  * m[10] * m[15] - 
+             m[0]  * m[11] * m[14] - 
+             m[8]  * m[2] * m[15] + 
+             m[8]  * m[3] * m[14] + 
+             m[12] * m[2] * m[11] - 
+             m[12] * m[3] * m[10];
+
+    inv[9] = -m[0]  * m[9] * m[15] + 
+              m[0]  * m[11] * m[13] + 
+              m[8]  * m[1] * m[15] - 
+              m[8]  * m[3] * m[13] - 
+              m[12] * m[1] * m[11] + 
+              m[12] * m[3] * m[9];
+
+    inv[13] = m[0]  * m[9] * m[14] - 
+              m[0]  * m[10] * m[13] - 
+              m[8]  * m[1] * m[14] + 
+              m[8]  * m[2] * m[13] + 
+              m[12] * m[1] * m[10] - 
+              m[12] * m[2] * m[9];
+
+    inv[2] = m[1]  * m[6] * m[15] - 
+             m[1]  * m[7] * m[14] - 
+             m[5]  * m[2] * m[15] + 
+             m[5]  * m[3] * m[14] + 
+             m[13] * m[2] * m[7] - 
+             m[13] * m[3] * m[6];
+
+    inv[6] = -m[0]  * m[6] * m[15] + 
+              m[0]  * m[7] * m[14] + 
+              m[4]  * m[2] * m[15] - 
+              m[4]  * m[3] * m[14] - 
+              m[12] * m[2] * m[7] + 
+              m[12] * m[3] * m[6];
+
+    inv[10] = m[0]  * m[5] * m[15] - 
+              m[0]  * m[7] * m[13] - 
+              m[4]  * m[1] * m[15] + 
+              m[4]  * m[3] * m[13] + 
+              m[12] * m[1] * m[7] - 
+              m[12] * m[3] * m[5];
+
+    inv[14] = -m[0]  * m[5] * m[14] + 
+               m[0]  * m[6] * m[13] + 
+               m[4]  * m[1] * m[14] - 
+               m[4]  * m[2] * m[13] - 
+               m[12] * m[1] * m[6] + 
+               m[12] * m[2] * m[5];
+
+    inv[3] = -m[1] * m[6] * m[11] + 
+              m[1] * m[7] * m[10] + 
+              m[5] * m[2] * m[11] - 
+              m[5] * m[3] * m[10] - 
+              m[9] * m[2] * m[7] + 
+              m[9] * m[3] * m[6];
+
+    inv[7] = m[0] * m[6] * m[11] - 
+             m[0] * m[7] * m[10] - 
+             m[4] * m[2] * m[11] + 
+             m[4] * m[3] * m[10] + 
+             m[8] * m[2] * m[7] - 
+             m[8] * m[3] * m[6];
+
+    inv[11] = -m[0] * m[5] * m[11] + 
+               m[0] * m[7] * m[9] + 
+               m[4] * m[1] * m[11] - 
+               m[4] * m[3] * m[9] - 
+               m[8] * m[1] * m[7] + 
+               m[8] * m[3] * m[5];
+
+    inv[15] = m[0] * m[5] * m[10] - 
+              m[0] * m[6] * m[9] - 
+              m[4] * m[1] * m[10] + 
+              m[4] * m[2] * m[9] + 
+              m[8] * m[1] * m[6] - 
+              m[8] * m[2] * m[5];
+
+    det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+
+    if (det == 0)
+        return false;
+
+    det = 1.0 / det;
+
+    for (i = 0; i < 16; i++)
+        invOut[i] = inv[i] * det;
+
+    return true;
+}
 struct Point3{
 	double x;
 	double y;
@@ -19,10 +153,6 @@ class Block
 {
 protected:
 	Point3 center;
-	double width;
-	double height;
-	double depth;
-	double rotationMatrix[16];
 	double color[3];
 
 	void displayFaceVertex(int x, int y, int z) {
@@ -37,17 +167,15 @@ protected:
 	}
 
 public:
+	double rotationMatrix[16];
 	Block(){}
 
-	Block(double *colors, double a1[], double w, double h, double d, double *rot) {
+	Block(double *colors, double a1[], double *rot) {
 		color[0] = colors[0];
 		color[1] = colors[1];
 		color[2] = colors[2];
 
 		center = Point3(a1[0], a1[1], a1[2]);
-		width = w;
-		height = h;
-		depth = d;
 
 		int i;
 		for (i = 0; i<16; i++)
@@ -70,17 +198,14 @@ public:
 		color[2] = colors[2];
 
 		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
-		width = w;
-		height = h;
-		depth = d;
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
 		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
 		glRotated(theta, 0, 1, 0);
-		glRotated(phi, 0, 0, 1);
-		glScaled(w, h, d);
+		glRotated(-phi, 0, 0, 1);
+		glScaled(w/2, h/2, d/2);
 		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
 		glPopMatrix();
 	}
@@ -93,68 +218,225 @@ public:
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		
-		//glLoadIdentity();
 		glMultMatrixd(rotationMatrix);
 
 		glColor3dv(color);
 
-		// Near face
-		glColor3d(1, 1, 1);
+//		glColor3d(1, 1, 1);
 		glBegin(GL_QUADS);
+			// Near face
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(1, -1, -1);
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(-1, 1, -1);
-		glEnd();
-
-		// Far face
 		
-		glColor3d(0.5, 0.5, 0.5);
-		glBegin(GL_QUADS);
+//		glColor3d(0.5, 0.5, 0.5);
+			// Far face
 			displayFaceVertex(-1, -1, 1);
 			displayFaceVertex(1, -1, 1);
 			displayFaceVertex(1, 1, 1);
 			displayFaceVertex(-1, 1, 1);
-		glEnd();
 
-		// Top face
-		glColor3d(1, 0, 0);
-		glBegin(GL_QUADS);
+//		glColor3d(1, 0, 0);
+			// Top face
 			displayFaceVertex(-1, 1, -1);
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(1, 1, 1);
 			displayFaceVertex(-1, 1, 1);
-		glEnd();
 
-		// Bottom face
-		glColor3d(0, 1, 1);
-		glBegin(GL_QUADS);
+//		glColor3d(0, 1, 1);
+			// Bottom face
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(1, -1, -1);
 			displayFaceVertex(1, -1, 1);
 			displayFaceVertex(-1, -1, 1);
-		glEnd();
 
-		// Right face
-		glColor3d(0, 1, 0);
-		glBegin(GL_QUADS);
+//		glColor3d(0, 1, 0);
+			// Right face
 			displayFaceVertex(1, 1, -1);
 			displayFaceVertex(1, -1, -1);
 			displayFaceVertex(1, -1, 1);
 			displayFaceVertex(1, 1, 1);
-		glEnd();
 
-		// Left face
-		glColor3d(1, 0, 1);
-		glBegin(GL_QUADS);
+//		glColor3d(1, 0, 1);
+			// Left face
 			displayFaceVertex(-1, 1, -1);
 			displayFaceVertex(-1, -1, -1);
 			displayFaceVertex(-1, -1, 1);
 			displayFaceVertex(-1, 1, 1);
 		glEnd();
-		
+		double d = 0.001;
+		glColor3d(1,1,1);
+		glBegin(GL_LINES);
+			glVertex3d(1+d,1+d,1+d);
+			glVertex3d(1+d,1+d,-1-d);
+			glVertex3d(1+d,1+d,-1-d);
+			glVertex3d(-1-d,1+d,-1-d);
+			glVertex3d(-1-d,1+d,-1-d);
+			glVertex3d(-1-d,1+d,1+d);
+			glVertex3d(-1-d,1+d,1+d);
+			glVertex3d(1+d,1+d,1+d);
+
+			glVertex3d(1+d,-1-d,1+d);
+			glVertex3d(1+d,-1-d,-1-d);
+			glVertex3d(1+d,-1-d,-1-d);
+			glVertex3d(-1-d,-1-d,-1-d);
+			glVertex3d(-1-d,-1-d,-1-d);
+			glVertex3d(-1-d,-1-d,1+d);
+			glVertex3d(-1-d,-1-d,1+d);
+			glVertex3d(1+d,-1-d,1+d);
+
+			glVertex3d(1+d,-1-d,1+d);
+			glVertex3d(1+d,1+d,1+d);
+			glVertex3d(1+d,-1-d,-1-d);
+			glVertex3d(1+d,1+d,-1-d);
+			glVertex3d(-1-d,-1-d,-1-d);
+			glVertex3d(-1-d,1+d,-1-d);
+			glVertex3d(-1-d,-1-d,1+d);
+			glVertex3d(-1-d,1+d,1+d);
+		glEnd();
 		glPopMatrix();
 	}
+};
+
+class Sphere
+{
+private:
+	Point3 center;
+	double radius;
+	double color[3];
+	double velocity[3];
+public:
+	Sphere(){}
+	Sphere(double *colors, double c[3],double r) {
+		color[0] = colors[0];
+		color[1] = colors[1];
+		color[2] = colors[2];
+		center = Point3(c[0],c[1],c[2]);
+		radius = r;
+		velocity[0] = velocity[1] = velocity[2] = 0;
+	}
+
+	void accelerate(double xaccel,double yaccel,double zaccel) {
+		velocity[0]+=xaccel;
+		velocity[1]+=yaccel;
+		velocity[2]+=zaccel;
+//		center.x+=velocity[0];
+//		center.y+=velocity[1];
+//		center.z+=velocity[2];
+	}
+
+	double evaluateQuadric(double quadric[16],double x,double y,double z){
+		return quadric[0]*x*x+(quadric[1]+quadric[4])*x*y+(quadric[2]+quadric[8])*x*z+(quadric[3]+quadric[12])*x+quadric[5]*y*y+(quadric[6]+quadric[9])*y*z+(quadric[7]+quadric[13])*y+quadric[10]*z*z+(quadric[11]+quadric[14])*z+quadric[15];
+	}
+
+	void vectorTransform(double transform[16],double input[4],double output[4]) {
+		output[3] = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
+		output[0] = (transform[0]*input[0]+transform[1]*input[1]+transform[2]*input[2]+transform[3]*input[3])/output[3];
+		output[1] = (transform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/output[3];
+		output[2] = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/output[3];
+		output[3] = 1;
+	}
+
+	void collideCorner(double quadric[16],double x,double y,double z,double newCenter[4]) {
+		if(evaluateQuadric(quadric,x,y,z)<0) {
+			double dir[4];
+			dir[0] = x-newCenter[0];
+			dir[1] = y-newCenter[1];
+			dir[2] = z-newCenter[2];
+			dir[3] = 1;
+			double dist = std::sqrt(dir[0]*dir[0]+dir[1]*dir[1]+dir[2]*dir[2]);
+			
+		}
+	}
+
+	void collideEdge(double quadric[16],double x,double y,double z) {
+
+	}
+
+	#define faceThreshold 0.01
+	void collideFace(double quadric[16],double x,double y,double z,double newCenter[4]) {
+		if(y!=0) {
+			z = ((quadric[3]+quadric[12])*(quadric[2]+quadric[8])-2*(quadric[0])*(quadric[11]+quadric[14]))/(4*(quadric[0])*(quadric[10])-(quadric[2]+quadric[8])*(quadric[2]+quadric[8]));
+			x = (-(quadric[11]+quadric[14])-2*(quadric[10])*z)/(quadric[2]+quadric[8]);
+			r = 
+		} else if(x!=0) {
+		} else if(z!=0) {
+		}
+	}
+
+	void testCollision(Block block) {
+		double quadric[16] = {1,0,0,-center.x,0,1,0,-center.y,0,0,1,-center.z,-center.x,-center.y,-center.z,center.x*center.x+center.y*center.y+center.z*center.z-radius*radius};
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		double transpose[16];
+		transposeMatrix(block.rotationMatrix,transpose);
+		double inverse[16];
+		gluInvertMatrix(block.rotationMatrix,inverse);
+		double inverseTranspose[16];
+		transposeMatrix(inverse,inverseTranspose);
+		double oldCenter[4];
+		oldCenter[0] = center.x;
+		oldCenter[1] = center.y;
+		oldCenter[2] = center.z;
+		oldCenter[3] = 1;
+		double newCenter[4];
+		vectorTransform(inverseTranspose,oldCenter,newCenter);
+		glMultMatrixd(transpose);
+		glMultMatrixd(quadric);
+		glMultMatrixd(block.rotationMatrix);
+		glGetDoublev(GL_MODELVIEW_MATRIX,quadric);
+		int sides = 0;
+		if(std::abs(newCenter[0])>1)
+			sides++;
+		if(std::abs(newCenter[1])>1)
+			sides++;
+		if(std::abs(newCenter[2])>1)
+			sides++;
+		if(sides==3)
+			collideCorner(quadric,(newCenter[0]>0)?1:-1,(newCenter[1]>0)?1:-1,(newCenter[2]>0)?1:-1,newCenter);
+		if(sides==2)
+
+
+	}
+
+	void display() {
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslated(center.x,center.y,center.z);
+		glScaled(radius,radius,radius);
+		glColor3dv(color);
+		glBegin(GL_TRIANGLES);
+			glVertex3d(0,0,1);
+			glVertex3d(1,0,0);
+			glVertex3d(0,1,0);
+			glVertex3d(1,0,0);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,1,0);
+			glVertex3d(0,0,-1);
+			glVertex3d(-1,0,0);
+			glVertex3d(0,1,0);
+			glVertex3d(-1,0,0);
+			glVertex3d(0,0,1);
+			glVertex3d(0,1,0);
+
+			glVertex3d(0,0,1);
+			glVertex3d(0,-1,0);
+			glVertex3d(1,0,0);
+			glVertex3d(1,0,0);
+			glVertex3d(0,-1,0);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,-1,0);
+			glVertex3d(-1,0,0);
+			glVertex3d(-1,0,0);
+			glVertex3d(0,-1,0);
+			glVertex3d(0,0,1);
+		glEnd();
+		glPopMatrix();
+	}
+};
 };
 
 class MovingBlock : public Block {

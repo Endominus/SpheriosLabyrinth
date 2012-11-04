@@ -11,6 +11,9 @@
 
 #define TRUE 1
 #define FALSE 0
+#define MAXTILT 10
+#define TILTSPEED 1
+#define CAMERASPEED 1
 
 // Storage space for the various transformations we'll need
 double translationMatrix[16], inverseTranslationMatrix[16], rotationMatrix[16];
@@ -64,17 +67,19 @@ public:
 		cameraLookMode = false;
 		lastPos[0] = -1;
 		lastPos[1] = -1;
-		cameraTheta = 0;
-		cameraPhi = 90;
+		cameraTheta = tiltX = tiltZ = 0;
+		cameraPhi = 50;
 		gfxinit();
 		
-		Block level[5];
 		double a[] = {20, 0, -20};
 		double b[] = {20, 10, -20};
 
 		double block1Color[3] = {1, 0, 0};
-		double block1Center[3] = {0, 0, 0};
-		level[0] = Block(block1Color, block1Center, 0.5, 0.5, 0.5, 0, 0);
+		double block1Center[3] = {2, 0, 0};
+		level[0] = Block(block1Color, block1Center, 4, 1, 4, 0, 0);
+		double ballColor[3] = {0,1,1};
+		double ballCenter[3] = {0,1,0};
+		ball = Sphere(ballColor,ballCenter,0.1);
 
 		//double block2Color[3] = {0, 0, 1};
 		//double block2Center[3] = {2, 0, -5};
@@ -92,34 +97,29 @@ public:
 			handleEvents();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			updateProjectionMatrix();
+			updateModelviewMatrix();
 			for (int i = 0; i < 1; ++i)
 			{
 				level[i].display();
 			}
+			ball.display();
 			App->Display();
 		}
 	}
 	
 private:
+	Block level[5];
+	Sphere ball;
 	sf::Window *App;
 	sf::Clock motionClock;
 	int lastPos[2];
 	bool cameraLookMode;
 	double cameraTheta;
 	double cameraPhi;
+	double tiltX;
+	double tiltZ;
 
 	void updateModelviewMatrix()
-	{
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glMultMatrixd(translationMatrix);
-		glMultMatrixd(rotationMatrix);
-		glMultMatrixd(inverseTranslationMatrix);
-		gluLookAt(0, 0, 0, 0, 0, -20, 0, 1, 0);
-	}
-
-	void updateProjectionMatrix()
 	{
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -129,6 +129,8 @@ private:
 		//glRotated(cameraTheta, 0, 1, 0);
 		//glRotated(cameraPhi, 0, 0, 1);
 		gluLookAt(sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5, cos(cameraPhi*M_PI/180)*5, sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 0, 0, 0, 0, 1, 0);
+		glRotated(-tiltX,0,0,1);
+		glRotated(tiltZ,1,0,0);
 	}
 	
 	void handleEvents()
@@ -146,6 +148,28 @@ private:
 			if ((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::Escape))
 				App->Close();
 			
+			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::W)) {
+				tiltX-=cos(cameraTheta*M_PI/180)*TILTSPEED;
+				tiltZ-=sin(cameraTheta*M_PI/180)*TILTSPEED;
+			}
+			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::S)) {
+				tiltX+=cos(cameraTheta*M_PI/180)*TILTSPEED;
+				tiltZ+=sin(cameraTheta*M_PI/180)*TILTSPEED;
+			}
+			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::A)) {
+				tiltX-=sin(cameraTheta*M_PI/180)*TILTSPEED;
+				tiltZ+=cos(cameraTheta*M_PI/180)*TILTSPEED;
+			}
+			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::D)) {
+				tiltX+=sin(cameraTheta*M_PI/180)*TILTSPEED;
+				tiltZ-=cos(cameraTheta*M_PI/180)*TILTSPEED;
+			}
+			if(tiltX*tiltX+tiltZ*tiltZ>MAXTILT*MAXTILT) {
+				double size = sqrt(tiltX*tiltX+tiltZ*tiltZ);
+				tiltX*=MAXTILT/size;
+				tiltZ*=MAXTILT/size;
+			}
+			
 			if (cameraLookMode && Event.Type == sf::Event::MouseMoved)
 			{
 				int deltaX = Event.MouseMove.X - lastPos[0];
@@ -159,8 +183,8 @@ private:
 				glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
 				glPopMatrix();*/
 
-				cameraTheta = (cameraTheta + deltaX);
-				cameraPhi -= deltaY;
+				cameraTheta += deltaX*CAMERASPEED;
+				//cameraPhi -= deltaY*CAMERASPEED;
 
 				if (cameraPhi > 180)
 					cameraPhi = 180;
@@ -179,6 +203,8 @@ private:
 				cameraLookMode = !cameraLookMode;
 			}
 		}
+		ball.accelerate(tiltX*0.0001,0.0001,0.0001*tiltZ);
+		ball.testCollision(level[0]);
 	}
 };
 
