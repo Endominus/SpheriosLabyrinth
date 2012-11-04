@@ -13,7 +13,7 @@
 #define TRUE 1
 #define FALSE 0
 #define MAXTILT 10
-#define TILTSPEED 1
+#define TILTSPEED 0.01
 #define CAMERASPEED 1
 
 // Storage space for the various transformations we'll need
@@ -72,16 +72,17 @@ public:
 		lastPos[1] = -1;
 		cameraTheta = tiltX = tiltZ = 0;
 		cameraPhi = 50;
+		buttonPressed[0] = buttonPressed[1] = buttonPressed[2] = buttonPressed[3] = false;
 		gfxinit();
 		
 		double a[] = {20, 0, -20};
 		double b[] = {20, 10, -20};
 
 		double block1Color[3] = {1, 0, 0};
-		double block1Center[3] = {2, 0, 0};
+		double block1Center[3] = {0, 0, 0};
 		level[0] = Block(block1Color, block1Center, 4, 1, 4, 0, 0);
 		double ballColor[3] = {0,1,1};
-		double ballCenter[3] = {0,1,0};
+		double ballCenter[3] = {0,.7,0};
 		ball = Sphere(ballColor,ballCenter,0.1);
 
 		//double block2Color[3] = {0, 0, 1};
@@ -128,6 +129,7 @@ public:
 	
 private:
 	Block level[5];
+	bool buttonPressed[4];
 	Sphere ball;
 	sf::Window *App;
 	sf::Clock motionClock;
@@ -170,25 +172,28 @@ private:
 				App->Close();
 			
 			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::W)) {
-				tiltX-=cos(cameraTheta*M_PI/180)*TILTSPEED;
-				tiltZ-=sin(cameraTheta*M_PI/180)*TILTSPEED;
+				buttonPressed[0] = true;
 			}
 			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::S)) {
-				tiltX+=cos(cameraTheta*M_PI/180)*TILTSPEED;
-				tiltZ+=sin(cameraTheta*M_PI/180)*TILTSPEED;
+				buttonPressed[1] = true;
 			}
 			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::A)) {
-				tiltX-=sin(cameraTheta*M_PI/180)*TILTSPEED;
-				tiltZ+=cos(cameraTheta*M_PI/180)*TILTSPEED;
+				buttonPressed[2] = true;
 			}
 			if((Event.Type == sf::Event::KeyPressed) && (Event.Key.Code == sf::Key::D)) {
-				tiltX+=sin(cameraTheta*M_PI/180)*TILTSPEED;
-				tiltZ-=cos(cameraTheta*M_PI/180)*TILTSPEED;
+				buttonPressed[3] = true;
 			}
-			if(tiltX*tiltX+tiltZ*tiltZ>MAXTILT*MAXTILT) {
-				double size = sqrt(tiltX*tiltX+tiltZ*tiltZ);
-				tiltX*=MAXTILT/size;
-				tiltZ*=MAXTILT/size;
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::W)) {
+				buttonPressed[0] = false;
+			}
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::S)) {
+				buttonPressed[1] = false;
+			}
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::A)) {
+				buttonPressed[2] = false;
+			}
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::D)) {
+				buttonPressed[3] = false;
 			}
 			
 			if (cameraLookMode && Event.Type == sf::Event::MouseMoved)
@@ -224,7 +229,29 @@ private:
 				cameraLookMode = !cameraLookMode;
 			}
 		}
-		ball.accelerate(tiltX*0.0001,0.0001,0.0001*tiltZ);
+		if(buttonPressed[0]) {
+			tiltX-=cos(cameraTheta*M_PI/180)*TILTSPEED;
+			tiltZ-=sin(cameraTheta*M_PI/180)*TILTSPEED;
+		}
+		if(buttonPressed[1]) {
+			tiltX+=cos(cameraTheta*M_PI/180)*TILTSPEED;
+			tiltZ+=sin(cameraTheta*M_PI/180)*TILTSPEED;
+		}
+		if(buttonPressed[2]) {
+			tiltX-=sin(cameraTheta*M_PI/180)*TILTSPEED;
+			tiltZ+=cos(cameraTheta*M_PI/180)*TILTSPEED;
+		}
+		if(buttonPressed[3]) {
+			tiltX+=sin(cameraTheta*M_PI/180)*TILTSPEED;
+			tiltZ-=cos(cameraTheta*M_PI/180)*TILTSPEED;
+		}
+		if(tiltX*tiltX+tiltZ*tiltZ>MAXTILT*MAXTILT) {
+			double size = sqrt(tiltX*tiltX+tiltZ*tiltZ);
+			tiltX*=MAXTILT/size;
+			tiltZ*=MAXTILT/size;
+		}
+
+		ball.accelerate(tiltX*0.000001,-0.00001,0.000001*tiltZ);
 		ball.testCollision(level[0]);
 	}
 

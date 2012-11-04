@@ -343,9 +343,9 @@ public:
 		velocity[0]+=xaccel;
 		velocity[1]+=yaccel;
 		velocity[2]+=zaccel;
-//		center.x+=velocity[0];
-//		center.y+=velocity[1];
-//		center.z+=velocity[2];
+		center.x+=velocity[0];
+		center.y+=velocity[1];
+		center.z+=velocity[2];
 	}
 
 	
@@ -382,12 +382,34 @@ public:
 	}*/
 
 	void testCollision(Block block) {
+		double transpose[16];
+		transposeMatrix(block.rotationMatrix,transpose);
+		double blockCenter[4];blockCenter[0]=0;blockCenter[1]=0;blockCenter[2]=0;blockCenter[3]=1;
+		double newCenter[4];
+		vectorTransform(transpose,blockCenter,newCenter);
+		double up[4];up[0]=0;up[1]=1;up[2]=0;up[3]=1;
+		double newup[4];
+		vectorTransform(transpose,up,newup);
+		double dotp = (newup[0]-newCenter[0])*(center.x-newup[0])+(newup[1]-newCenter[1])*(center.y-newup[1])+(newup[2]-newCenter[2])*(center.z-newup[2]);
+		if(dotp>0) {
+			double upsize = std::sqrt((newup[0]-newCenter[0])*(newup[0]-newCenter[0])+(newup[1]-newCenter[1])*(newup[1]-newCenter[1])+(newup[2]-newCenter[2])*(newup[2]-newCenter[2]));
+			double dist = dotp/upsize;
+			if(dist<radius) {
+				center.x = newup[0]+(center.x-newup[0])/dist*radius;
+				center.y = newup[1]+(center.y-newup[1])/dist*radius;
+				center.z = newup[2]+(center.z-newup[2])/dist*radius;
+				dotp = (newup[0]-newCenter[0])*velocity[0]+(newup[1]-newCenter[1])*velocity[1]+(newup[2]-newCenter[2])*velocity[2];
+				dotp/=upsize;
+				velocity[0] = velocity[0]-(newup[0]-newCenter[0])/upsize*dotp;
+				velocity[1] = velocity[1]-(newup[1]-newCenter[1])/upsize*dotp;
+				velocity[2] = velocity[2]-(newup[2]-newCenter[2])/upsize*dotp;
+			}
+		}
+		/*
 		double quadric[16] = {1,0,0,-center.x,0,1,0,-center.y,0,0,1,-center.z,-center.x,-center.y,-center.z,center.x*center.x+center.y*center.y+center.z*center.z-radius*radius};
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
-		double transpose[16];
-		transposeMatrix(block.rotationMatrix,transpose);
 		double inverse[16];
 		gluInvertMatrix(block.rotationMatrix,inverse);
 		double inverseTranspose[16];
@@ -402,7 +424,7 @@ public:
 		glMultMatrixd(transpose);
 		glMultMatrixd(quadric);
 		glMultMatrixd(block.rotationMatrix);
-		glGetDoublev(GL_MODELVIEW_MATRIX,quadric);
+		glGetDoublev(GL_MODELVIEW_MATRIX,quadric);*/
 	}
 
 	void display() {
