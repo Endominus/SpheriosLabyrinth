@@ -381,6 +381,13 @@ private:
 	double color[3];
 	double velocity[3];
 public:
+
+	double * getCenter()
+	{
+		double ret[3] = {center.x, center.y, center.z};
+		return ret;
+	}
+
 	Sphere(){}
 	Sphere(double *colors, double c[3],double r) {
 		color[0] = colors[0];

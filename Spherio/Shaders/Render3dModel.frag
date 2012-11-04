@@ -1,6 +1,5 @@
 // Computes fragment colors for the model triangles.
-uniform mat4 projMatrix;  //projection matrix
-uniform mat4 viewMatrix;  //view matrix (camera)
+uniform vec3 ballPos;
 
 varying vec3 normal;
 varying vec4 vertex;
@@ -8,13 +7,10 @@ uniform vec3 lightPos;
 
 void main()
 {
-	//vec4 lightVec = normalize(vec4(lightPos[0] - vertex[0], lightPos[1] - vertex[1], lightPos[2] - vertex[2], 0));
-	vec3 lightVec = vec3(lightPos[0] - vertex[0], lightPos[1] - vertex[1], lightPos[2] - vertex[2]);
-	float shadingFactor = (-10*dot(normalize(lightVec), normal)/dot(lightVec, lightVec))+0.1;
+	//vec4 lightVec = normalize(vec4(ballPos[0] - vertex[0], ballPos[1] - vertex[1], ballPos[2] - vertex[2], 0));
+	vec3 lightVec = vec3(ballPos[0] - vertex[0], ballPos[1] - vertex[1], ballPos[2] - vertex[2]);
+	float shadingFactor = (10.0*dot(normalize(lightVec), normal)/dot(lightVec, lightVec))+0.1;
 	gl_FragColor = vec4(gl_Color[0]*shadingFactor, gl_Color[1]*shadingFactor, gl_Color[2]*shadingFactor, 1);
-	if (shadingFactor < 0) {
-		gl_FragColor = vec4(0,0,1,1);
-	}
 	//gl_FragColor = vec4(1, 0, 0, 1);
 	//gl_FragColor = gl_Color;
 }

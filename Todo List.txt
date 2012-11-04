@@ -1,15 +1,9 @@
 Short Term
-Create the Sphere.
 Create the level.
-Enable camera rotation.
 
 Medium Term
-Enable movement.
-Implement shaders
-Implement lighting
 Create multiple obstacle types.
 
 Long Term
 Implement collision detection.
-Implement physics (including friction and gravity).
-Enable board tilt.
+Implement physics (including friction).

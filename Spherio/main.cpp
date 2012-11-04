@@ -82,13 +82,8 @@ public:
 		double block1Center[3] = {0, 0, 0};
 		level[0] = Block(block1Color, block1Center, 4, 1, 4, 0, 0);
 		double ballColor[3] = {0,1,1};
-<<<<<<< HEAD
-		double ballCenter[3] = {0,.7,0};
-		ball = Sphere(ballColor,ballCenter,0.1);
-=======
-		double ballCenter[3] = {0,1,0};
+		double ballCenter[3] = {0,3,0};
 		ball = Sphere(ballColor,ballCenter,0.314159);
->>>>>>> Oh God I hope this works.
 
 		//double block2Color[3] = {0, 0, 1};
 		//double block2Center[3] = {2, 0, -5};
@@ -113,6 +108,9 @@ public:
 		const char * vertPath = "Shaders/Render3dModel.vert";
 		const char * fragPath = "Shaders/Render3dModel.frag";
 		prog = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
+		vertPath = "Shaders/BallShader.vert";
+		fragPath = "Shaders/BallShader.frag";
+		ballProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
 		while (App->IsOpened())
 		{
 			App->SetActive();
@@ -123,10 +121,12 @@ public:
 			updateModelviewMatrix();
 			glUseProgram(prog);
 			setShaderVariables(prog);
+			setShaderVariables(ballProg);
 			for (int i = 0; i < 1; ++i)
 			{
 				level[i].display();
 			}
+			glUseProgram(ballProg);
 			ball.display();
 			App->Display();
 		}
@@ -145,6 +145,7 @@ private:
 	double tiltX;
 	double tiltZ;
 	GLint prog;
+	GLint ballProg;
 	bool GL20Support;
 
 	void updateModelviewMatrix()
@@ -316,15 +317,15 @@ private:
 		glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
 		glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix);
 		
+		double *center = ball.getCenter();
+
 		if(GL20Support)
 		{
-			glUniformMatrix4fv(glGetUniformLocation(shaderProg, "projMatrix"), 1, false, projMatrix);
-			glUniformMatrix4fv(glGetUniformLocation(shaderProg, "viewMatrix"), 1, false, viewMatrix);
+			glUniform3f(glGetUniformLocation(shaderProg, "ballPos"),center[0], center[1], center[2]);
 		}
 		else
 		{
-			glUniformMatrix4fvARB(glGetUniformLocationARB(shaderProg, "projMatrix"), 1, false, projMatrix);
-			glUniformMatrix4fvARB(glGetUniformLocationARB(shaderProg, "viewMatrix"), 1, false, viewMatrix);
+			//glUniform3fvARB(glGetUniformLocationARB(shaderProg, "ballPos"), 3, (float*)ball.getCenter());
 		}
 	}
 };
