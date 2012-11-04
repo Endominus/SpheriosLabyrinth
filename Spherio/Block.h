@@ -458,7 +458,6 @@ public:
 		glPopMatrix();
 	}
 };
-};
 
 class MovingBlock : public Block {
 private:
@@ -481,10 +480,6 @@ public:
 		color[2] = colors[2];
 );
 		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
-
-		width = w;
-		height = h;
-		depth = d;
 
 		deltaX = end[0] - centerPoint[0];
 		deltaY = end[1] - centerPoint[1];
