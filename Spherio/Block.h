@@ -17,7 +17,7 @@ struct Point3{
 
 class Block 
 {
-private:
+protected:
 	Point3 center;
 	double width;
 	double height;
@@ -154,5 +154,128 @@ public:
 		glEnd();
 		
 		glPopMatrix();
+	}
+};
+
+class MovingBlock : public Block {
+private:
+	double time;
+	double deltaX;
+	double deltaY;
+	double deltaZ;
+
+public:
+
+	MovingBlock(double *colors, double centerPoint[], double end[], double w, double h, double d, double theta, double phi, double timeTaken)
+	{
+		color[0] = colors[0];
+		color[1] = colors[1];
+		color[2] = colors[2];
+
+		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
+		width = w;
+		height = h;
+		depth = d;
+
+		deltaX = end[0] - centerPoint[0];
+		deltaY = end[1] - centerPoint[1];
+		deltaZ = end[2] - centerPoint[2];
+
+		time = timeTaken;
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
+		glRotated(theta, 0, 1, 0);
+		glRotated(phi, 0, 0, 1);
+		glScaled(w, h, d);
+		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+		glPopMatrix();
+	}
+
+	void display(double elapsedTime)
+	{
+
+		double xOffset = (deltaX*elapsedTime)/time;
+		if (abs(xOffset) > abs(deltaX))
+		{
+			center.x += deltaX; // This does nothing - have to change the transformation matrix.
+			center.y += deltaY;
+			center.z += deltaZ;
+			deltaX *= -1;
+			deltaY *= -1;
+			deltaZ *= -1;
+			xOffset = (deltaX*elapsedTime)/time;
+		}
+		double yOffset = (deltaY*elapsedTime)/time;
+		double zOffset = (deltaZ*elapsedTime)/time;
+		//double currentMatrix[16];
+		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		
+		//glLoadIdentity();
+		glMultMatrixd(rotationMatrix);
+
+		glColor3dv(color);
+
+		// Near face
+		glColor3d(1, 1, 1);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+		glEnd();
+
+		// Far face
+		
+		glColor3d(0.5, 0.5, 0.5);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Top face
+		glColor3d(1, 0, 0);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Bottom face
+		glColor3d(0, 1, 1);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Right face
+		glColor3d(0, 1, 0);
+		glBegin(GL_QUADS);
+			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Left face
+		glColor3d(1, 0, 1);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+		
+		glPopMatrix();
+
 	}
 };
