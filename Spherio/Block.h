@@ -147,6 +147,19 @@ struct Point3{
 	}
 
 	Point3(){}
+struct Point3{
+	double x;
+	double y;
+	double z;
+
+	Point3(double a, double b, double c) 
+	{
+		x = a;
+		y = b;
+		z = c;
+	}
+
+	Point3(){}
 };
 
 class Block 
@@ -196,8 +209,9 @@ public:
 		color[0] = colors[0];
 		color[1] = colors[1];
 		color[2] = colors[2];
+);
+		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
 
-		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -325,20 +339,28 @@ public:
 //		center.y+=velocity[1];
 //		center.z+=velocity[2];
 	}
-
-	double evaluateQuadric(double quadric[16],double x,double y,double z){
-		return quadric[0]*x*x+(quadric[1]+quadric[4])*x*y+(quadric[2]+quadric[8])*x*z+(quadric[3]+quadric[12])*x+quadric[5]*y*y+(quadric[6]+quadric[9])*y*z+(quadric[7]+quadric[13])*y+quadric[10]*z*z+(quadric[11]+quadric[14])*z+quadric[15];
-	}
-
-	void vectorTransform(double transform[16],double input[4],double output[4]) {
-		output[3] = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
-		output[0] = (transform[0]*input[0]+transform[1]*input[1]+transform[2]*input[2]+transform[3]*input[3])/output[3];
-		output[1] = (transform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/output[3];
-		output[2] = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/output[3];
+ut[1]+transform[14]*input[2]+transform[15]*input[3];
+		output[0] = (transform[0
+		output[3] = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];nsform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/output[3];
+		output[2] = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/output[3];
 		output[3] = 1;
 	}
 
 	void collideCorner(double quadric[16],double x,double y,double z,double newCenter[4]) {
+		if(evaluateQuadric(qu
+		output[3] = 1;
+	}
+
+/*	double evaluateQuadric(double quadric[16],double x,double y,double z){+quadric[9])*y*z+(quadric[7]+quadric[13])*y+quadric[10]*z*z+(quadric[11]+quadric[14])*z+quadric[15];
+	}
+
+	void vectorTransform(double transform[16],double input[4],double output[4]) {
+		output[3] = transform[12]*input[0]+transform[13]
+	}
+double dir[4];
+			dir[0] = x-newCenter[0];
+			dir[1] = y-newCenter[1];
+			dir[2] = z-newC
 		if(evaluateQuadric(quadric,x,y,z)<0) {
 			double dir[4];
 			dir[0] = x-newCenter[0];
@@ -355,18 +377,29 @@ public:
 	}
 
 	#define faceThreshold 0.01
-	void collideFace(double quadric[16],double x,double y,double z,double newCenter[4]) {
-		if(y!=0) {
-			z = ((quadric[3]+quadric[12])*(quadric[2]+quadric[8])-2*(quadric[0])*(quadric[11]+quadric[14]))/(4*(quadric[0])*(quadric[10])-(quadric[2]+quadric[8])*(quadric[2]+quadric[8]));
+	void collideFacer[0] = x-newCenter[0];
+			dir[1] = y-newCenter[1];
+			dir[2] = z-newC
+		if(y!=0) {dric[2]+quadric[8])*(quadric[2]+quadric[8]));
 			x = (-(quadric[11]+quadric[14])-2*(quadric[10])*z)/(quadric[2]+quadric[8]);
 			r = 
 		} else if(x!=0) {
 		} else if(z!=0) {
 		}
 	}
+			x = (-(quadric[11]+quadric[14])-2*(quadric[10])*z)/(quadric[2]+quadric[8]);
+			r = 
+		} else if(x!=0) {
+		} else if(z!=0) {
+		}
+	}*/
 
-	void testCollision(Block block) {
-		double quadric[16] = {1,0,0,-center.x,0,1,0,-center.y,0,0,1,-center.z,-center.x,-center.y,-center.z,center.x*center.x+center.y*center.y+center.z*center.z-radius*radius};
+	void testCollision(Block block) {er.y+center.z*center.z-radius*radius};
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		double transpose[16];
+		transposeMatrix(block.rotationMatrix,tr
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
@@ -394,8 +427,11 @@ public:
 			sides++;
 		if(std::abs(newCenter[2])>1)
 			sides++;
-		if(sides==3)
-			collideCorner(quadric,(newCenter[0]>0)?1:-1,(newCenter[1]>0)?1:-1,(newCenter[2]>0)?1:-1,newCenter);
+		if(sides==3)play() {
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glTranslated(center.x,center.y,center.z);
+		
 		if(sides==2)
 
 
@@ -447,14 +483,20 @@ private:
 	double deltaZ;
 
 public:
-
-	MovingBlock(double *colors, double centerPoint[], double end[], double w, double h, double d, double theta, double phi, double timeTaken)
+aken)
 	{
 		color[0] = colors[0];
 		color[1] = colors[1];
 		color[2] = colors[2];
 
-		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
+		center = Point3(centerPoint[0], centerPoint[1], centerP
+	{
+		color[0] = colors[0];
+		color[1] = colors[1];
+		color[2] = colors[2];
+);
+		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
+
 		width = w;
 		height = h;
 		depth = d;
@@ -482,7 +524,10 @@ public:
 		double xOffset = (deltaX*elapsedTime)/time;
 		if (abs(xOffset) > abs(deltaX))
 		{
-			center.x += deltaX; // This does nothing - have to change the transformation matrix.
+			deltaX *= -1;
+			deltaY *= -1;
+			deltaZ *= -1;
+			xOffset = (deltaX*elapsedTime)/ti
 			center.y += deltaY;
 			center.z += deltaZ;
 			deltaX *= -1;
