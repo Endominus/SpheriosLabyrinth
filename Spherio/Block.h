@@ -420,21 +420,6 @@ public:
 		glMultMatrixd(quadric);
 		glMultMatrixd(block.rotationMatrix);
 		glGetDoublev(GL_MODELVIEW_MATRIX,quadric);
-		int sides = 0;
-		if(std::abs(newCenter[0])>1)
-			sides++;
-		if(std::abs(newCenter[1])>1)
-			sides++;
-		if(std::abs(newCenter[2])>1)
-			sides++;
-		if(sides==3)play() {
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glTranslated(center.x,center.y,center.z);
-		
-		if(sides==2)
-
-
 	}
 
 	void display() {
