@@ -47,6 +47,7 @@ public:
 
 	void addGoal(double centerPoint[], double theta, double phi) {
 		double colors[] = {0, 1, 0};
+		endPos = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
 		double b1[] = {centerPoint[0]-1, centerPoint[1], centerPoint[2]+1.5};
 		double b2[] = {centerPoint[0]+1.5, centerPoint[1], centerPoint[2]+1};
 		double b3[] = {centerPoint[0]+1, centerPoint[1], centerPoint[2]-1.5};
@@ -120,6 +121,13 @@ public:
 							pow( currentPos[1] - endPos.y, 2 ) +
 							pow( currentPos[2] - endPos.z, 2 ) ) );
 
+	}
+
+	bool isLost()
+	{
+		double center[3];
+		ball->getCenter(center);
+		return center[1] < -10;
 	}
 
 	void testCollision()

@@ -210,29 +210,17 @@ private:
 				buttonPressed[3] = false;
 			}
 			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::R)) {
-				double *cam = level.resetLevel();
-				cameraTheta = cam[0];
-				cameraPhi = cam[1];
-				tiltX = 0;
-				tiltZ = 0;
+				reset();
 			}
 
 			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num1)) {
 				level = createLevel1(&ball);
-				double *cam = level.resetLevel();
-				cameraTheta = cam[0];
-				cameraPhi = cam[1];
-				tiltX = 0;
-				tiltZ = 0;
+				reset();
 			}
 
 			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num2)) {
 				level = createLevel2(&ball);
-				double *cam = level.resetLevel();
-				cameraTheta = cam[0];
-				cameraPhi = cam[1];
-				tiltX = 0;
-				tiltZ = 0;
+				reset();
 			}
 			
 			if (cameraLookMode && Event.Type == sf::Event::MouseMoved)
@@ -293,6 +281,16 @@ private:
 		ball.accelerate(tiltX*0.000001,-0.00001,0.000001*tiltZ);
 		//ball.testCollision(level[0]);
 		level.testCollision();
+		if (level.isLost())
+			reset();
+	}
+
+	void reset() {
+		double *cam = level.resetLevel();
+		cameraTheta = cam[0];
+		cameraPhi = cam[1];
+		tiltX = 0;
+		tiltZ = 0;
 	}
 
 	void __glewInit(FILE * logFile)
