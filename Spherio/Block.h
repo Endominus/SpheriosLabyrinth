@@ -530,7 +530,7 @@ public:
 			glVertex3d(0,-1,0);
 			glVertex3d(0,0,1);
 		glEnd();*/
-		glutSolidSphere(radius, 10, 10);
+		glutSolidSphere(radius, 20, 20);
 		glPopMatrix();
 	}
 };
@@ -538,6 +538,7 @@ public:
 class MovingBlock : public Block {
 private:
 	double time;
+	double timeSoFar;
 	double deltaX;
 	double deltaY;
 	double deltaZ;
@@ -556,6 +557,7 @@ public:
 		deltaZ = end[2] - centerPoint[2];
 
 		time = timeTaken;
+		timeSoFar = 0;
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -570,85 +572,147 @@ public:
 
 	void display(double elapsedTime)
 	{
-
-		double xOffset = (deltaX*elapsedTime)/time;
-		if (abs(xOffset) > abs(deltaX))
+		double xOffset = (deltaX*(elapsedTime-timeSoFar))/time;
+		double yOffset = (deltaY*(elapsedTime-timeSoFar))/time;
+		double zOffset = (deltaZ*(elapsedTime-timeSoFar))/time;
+		if (abs(xOffset) > abs(deltaX) || abs(yOffset) > abs(deltaY) || abs(zOffset) > abs(deltaZ))
 		{
-			center.x += deltaX; // This does nothing - have to change the transformation matrix.
+			timeSoFar = elapsedTime;
+			center.x += deltaX;
 			center.y += deltaY;
 			center.z += deltaZ;
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+			glTranslated(2*deltaX, 2*deltaY, 2*deltaZ);
+			glMultMatrixd(rotationMatrix);
+			glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+			glPopMatrix();
+			//printf("%.2f %.2f %.2f\n", deltaX, deltaY, deltaZ);
 			deltaX *= -1;
 			deltaY *= -1;
 			deltaZ *= -1;
-			xOffset = (deltaX*elapsedTime)/time;
+			xOffset = 0;
+			yOffset = 0;
+			zOffset = 0;
 		}
-		double yOffset = (deltaY*elapsedTime)/time;
-		double zOffset = (deltaZ*elapsedTime)/time;
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
-		
-		//glLoadIdentity();
-		glMultMatrixd(rotationMatrix);
+
 
 		glColor3dv(color);
 
-		// Near face
-		glColor3d(1, 1, 1);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-		glEnd();
+		//// Near face
+		//glColor3d(1, 1, 1);
+		//glBegin(GL_QUADS);
+		//	glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+		//	glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+		//glEnd();
 
-		// Far face
-		
-		glColor3d(0.5, 0.5, 0.5);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
+		//// Far face
+		//
+		//glColor3d(0.5, 0.5, 0.5);
+		//glBegin(GL_QUADS);
+		//	glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+		//	glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+		//	glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+		//	glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		//glEnd();
 
-		// Top face
-		glColor3d(1, 0, 0);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
+		//// Top face
+		//glColor3d(1, 0, 0);
+		//glBegin(GL_QUADS);
+		//	glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+		//	glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		//glEnd();
 
-		// Bottom face
-		glColor3d(0, 1, 1);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-		glEnd();
+		//// Bottom face
+		//glColor3d(0, 1, 1);
+		//glBegin(GL_QUADS);
+		//	glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+		//	glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+		//glEnd();
 
-		// Right face
-		glColor3d(0, 1, 0);
-		glBegin(GL_QUADS);
-			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
+		//// Right face
+		//glColor3d(0, 1, 0);
+		//glBegin(GL_QUADS);
+		//	glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+		//	glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+		//	glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+		//glEnd();
 
-		// Left face
-		glColor3d(1, 0, 1);
+		//// Left face
+		//glColor3d(1, 0, 1);
+		//glBegin(GL_QUADS);
+		//	glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+		//	glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+		//	glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+		//	glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		//glEnd();
+		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},{0,0,1,1},{0,0,-1,1},{0,1,0,1},{0,-1,0,1},{-1,0,0,1},{1,0,0,1},{0,0,0,1}};
+		double transformedCorners[15][4];
+		double transpose[16];
+		transposeMatrix(rotationMatrix, transpose);
+
+		for(int i=0;i<15;i++)
+		{
+			corners[i][0] += xOffset;
+			corners[i][1] += yOffset;
+			corners[i][2] += zOffset;
+			vectorTransform(transpose, corners[i], transformedCorners[i]);
+		}
+
+		for (int j = 8; j < 14; j++)
+		{
+			subtractVectors(corners[j], corners[14], corners[j]);
+		}
+
 		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+			glNormal3dv(corners[8]);
+			glVertex3dv(transformedCorners[0]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[3]);
+			glVertex3dv(transformedCorners[2]);
+			
+			glNormal3dv(corners[9]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[6]);
+			glVertex3dv(transformedCorners[7]);
+			
+			glNormal3dv(corners[10]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[0]);
+			
+			glNormal3dv(corners[11]);
+			glVertex3dv(transformedCorners[2]);
+			glVertex3dv(transformedCorners[3]);
+			glVertex3dv(transformedCorners[7]);
+			glVertex3dv(transformedCorners[6]);
+			
+			glNormal3dv(corners[12]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[0]);
+			glVertex3dv(transformedCorners[2]);
+			glVertex3dv(transformedCorners[6]);
+			
+			glNormal3dv(corners[13]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[7]);
+			glVertex3dv(transformedCorners[3]);
 		glEnd();
-		
 		glPopMatrix();
 
 	}

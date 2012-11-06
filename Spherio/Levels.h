@@ -165,11 +165,13 @@ Level createLevel1(Sphere *ball) {
 
 Level createLevel2(Sphere *ball) {
 	int i;
-	Point3 start = Point3(10, 1, 10);
+	Point3 start = Point3(0, 1, 10);
 	Level level2 = Level(9, 4, start, ball);
-	double centers[18][3] = {{5,0,2},{6,0,-3},{-1,0,-6},{-6,0,1},{3,0,6},{10,0,-3},{-1,0,-10},{-10,0,1},{1,0,10},{15,2,0},{5,2,0},{-15,2,0},{-5,2,0},{0,2,15},{0,2,5},{0,2,-15},{0,2,-5},{0,0,0}};
-	double w[] = {4,2,12,2,16,2,20,2,20,4,4,1,1};
-	double d[] = {2,8,2,12,2,16,2,20,2,1,1,4,4};
+	double centers[9][3] = {{5,0,2},{6,0,-3},{-1,0,-6},{-6,0,1},{3,0,6},{10,0,-3},{-1,0,-10},{-10,0,1},{1,0,10}};
+	double movingCenters[8][3] = {{10,2,0},{0,2,0},{-10,2,0},{0,2,0},{0,2,10},{0,2,0},{0,2,-10},{0,2,0}};
+	double goal[] = {0,0,0};
+	double w[] = {4,2,12,2,16,2,20,2,20,2,2,1,1};
+	double d[] = {2,8,2,12,2,16,2,20,2,1,1,2,2};
 	double colorBlock[] = {0.5, 0.68, 0.14};
 	double colorMove[] = {0.8, 0.38, 0.04};
 
@@ -177,13 +179,14 @@ Level createLevel2(Sphere *ball) {
 	{
 		level2.addBlock(colorBlock, centers[i], w[i], 1, d[i], 0, 0);
 	}
-
-	for (i = 9; i < 17; i+=2)
+	int j = 0;
+	for (i = 9; i < 13; i++)
 	{
-		level2.addMovingBlock(colorMove, centers[i], centers[i+1], w[i], 1, d[i], 0, 0, 3);
+		level2.addMovingBlock(colorMove, movingCenters[(i-9)*2], movingCenters[(i-9)*2+1], w[i], 1, d[i], 0, 0, 3);
+		j++;
 	}
-
-	level2.addGoal(centers[17], 0, 0);
+	
+	level2.addGoal(goal, 0, 0);
 
 	return level2;
 }

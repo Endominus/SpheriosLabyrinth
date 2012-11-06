@@ -8,7 +8,7 @@
 #include <math.h>
 #include "Levels.h"
 
-#define RESOLUTION 512
+#define RESOLUTION 1024
 
 #define TRUE 1
 #define FALSE 0
