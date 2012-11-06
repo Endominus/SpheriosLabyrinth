@@ -1,7 +1,8 @@
 #include <SFML\Graphics.hpp>
 #include <gl\glut.h>
 
-void transposeMatrix(double m[16],double output[16]) {
+void transposeMatrix(double m[16],double output[16]) 
+{
 	for(int i=0;i<4;i++)
 		for(int j=0;j<4;j++)
 			output[i*4+j]=m[j*4+i];
@@ -227,7 +228,6 @@ public:
 		glPopMatrix();
 	}
 
-
 	void display() 
 	{
 		//double currentMatrix[16];
@@ -382,10 +382,21 @@ private:
 	double velocity[3];
 public:
 
-	double * getCenter()
+	void getCenter( double * centerPos)
 	{
-		double ret[3] = {center.x, center.y, center.z};
-		return ret;
+		centerPos[0] = center.x;
+		centerPos[1] = center.y;
+		centerPos[2] = center.z;
+	}
+
+	void setCenter( Point3 newCenter )
+	{
+		center = newCenter;
+	}
+
+	void stopBall()
+	{
+		velocity[0] = velocity[1] = velocity[2] = 0;
 	}
 
 	Sphere(){}

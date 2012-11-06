@@ -7,6 +7,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "Block.h"
+#include "Level.h"
 
 #define RESOLUTION 512
 
@@ -111,6 +112,9 @@ public:
 		vertPath = "Shaders/BallShader.vert";
 		fragPath = "Shaders/BallShader.frag";
 		ballProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
+
+		Level level1 = CreateSpiralLevel( ball );
+		level1.resetLevel();
 		while (App->IsOpened())
 		{
 			App->SetActive();
@@ -122,10 +126,12 @@ public:
 			glUseProgram(prog);
 			setShaderVariables(prog);
 			setShaderVariables(ballProg);
-			for (int i = 0; i < 1; ++i)
-			{
-				level[i].display();
-			}
+
+			level1.display();
+			//for (int i = 0; i < 1; ++i)
+			//{
+			//	level[i].display();
+			//}
 			glUseProgram(ballProg);
 			ball.display();
 			App->Display();
@@ -317,7 +323,8 @@ private:
 		glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
 		glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix);
 		
-		double *center = ball.getCenter();
+		double center[3];
+		ball.getCenter( center );
 
 		if(GL20Support)
 		{

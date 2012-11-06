@@ -29,5 +29,8 @@
     <ClInclude Include="..\ShaderManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Level.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
