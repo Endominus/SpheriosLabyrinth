@@ -6,8 +6,7 @@
 #include <SFML/Window.hpp>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Block.h"
-#include "Level.h"
+#include "Levels.h"
 
 #define RESOLUTION 512
 
@@ -81,7 +80,6 @@ public:
 
 		double block1Color[3] = {1, 0, 0};
 		double block1Center[3] = {0, 0, 0};
-		level[0] = Block(block1Color, block1Center, 4, 1, 4, 0, 0);
 		double ballColor[3] = {0,1,1};
 		double ballCenter[3] = {0,3,0};
 		ball = Sphere(ballColor,ballCenter,0.314159);
@@ -113,8 +111,8 @@ public:
 		fragPath = "Shaders/BallShader.frag";
 		ballProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
 
-		Level level1 = CreateSpiralLevel( ball );
-		level1.resetLevel();
+		level = createLevel1(&ball);
+		level.resetLevel();
 		while (App->IsOpened())
 		{
 			App->SetActive();
@@ -127,7 +125,7 @@ public:
 			setShaderVariables(prog);
 			setShaderVariables(ballProg);
 
-			level1.display();
+			level.display();
 			//for (int i = 0; i < 1; ++i)
 			//{
 			//	level[i].display();
@@ -139,7 +137,6 @@ public:
 	}
 	
 private:
-	Block level[5];
 	bool buttonPressed[4];
 	Sphere ball;
 	sf::Window *App;
@@ -153,6 +150,7 @@ private:
 	GLint prog;
 	GLint ballProg;
 	bool GL20Support;
+	Level level;
 
 	void updateModelviewMatrix()
 	{
@@ -163,7 +161,11 @@ private:
 		//glMultMatrixd(inverseTranslationMatrix);
 		//glRotated(cameraTheta, 0, 1, 0);
 		//glRotated(cameraPhi, 0, 0, 1);
-		gluLookAt(sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5, cos(cameraPhi*M_PI/180)*5, sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 0, 0, 0, 0, 1, 0);
+		double center[3];
+		ball.getCenter(center);
+		gluLookAt(center[0]+sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5, cos(cameraPhi*M_PI/180)*5, 
+			center[2]+sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 
+			center[0], 0, center[2], 0, 1, 0);
 		glRotated(-tiltX,0,0,1);
 		glRotated(tiltZ,1,0,0);
 	}
@@ -206,6 +208,31 @@ private:
 			}
 			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::D)) {
 				buttonPressed[3] = false;
+			}
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::R)) {
+				double *cam = level.resetLevel();
+				cameraTheta = cam[0];
+				cameraPhi = cam[1];
+				tiltX = 0;
+				tiltZ = 0;
+			}
+
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num1)) {
+				level = createLevel1(&ball);
+				double *cam = level.resetLevel();
+				cameraTheta = cam[0];
+				cameraPhi = cam[1];
+				tiltX = 0;
+				tiltZ = 0;
+			}
+
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num2)) {
+				level = createLevel2(&ball);
+				double *cam = level.resetLevel();
+				cameraTheta = cam[0];
+				cameraPhi = cam[1];
+				tiltX = 0;
+				tiltZ = 0;
 			}
 			
 			if (cameraLookMode && Event.Type == sf::Event::MouseMoved)
@@ -264,7 +291,8 @@ private:
 		}
 
 		ball.accelerate(tiltX*0.000001,-0.00001,0.000001*tiltZ);
-		ball.testCollision(level[0]);
+		//ball.testCollision(level[0]);
+		level.testCollision();
 	}
 
 	void __glewInit(FILE * logFile)
