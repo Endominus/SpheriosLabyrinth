@@ -18,6 +18,7 @@
 
 // Storage space for the various transformations we'll need
 double translationMatrix[16], inverseTranslationMatrix[16], rotationMatrix[16];
+sf::Clock Clock;
 
 void
 display()
@@ -38,6 +39,9 @@ update_Modelview_Matrix()
 
 void gfxinit()
 {
+	Clock = sf::Clock();
+	Clock.Reset();
+
 	glEnable(GL_DEPTH_TEST);
 	
 	// initialize the projection stack
@@ -123,7 +127,6 @@ public:
 			updateModelviewMatrix();
 			glUseProgram(prog);
 			setShaderVariables(prog);
-			setShaderVariables(ballProg);
 
 			level.display();
 			//for (int i = 0; i < 1; ++i)
@@ -131,6 +134,7 @@ public:
 			//	level[i].display();
 			//}
 			glUseProgram(ballProg);
+			setShaderVariables(ballProg);
 			ball.display();
 			App->Display();
 		}
@@ -355,6 +359,7 @@ private:
 		if(GL20Support)
 		{
 			glUniform3f(glGetUniformLocation(shaderProg, "ballPos"),center[0], center[1], center[2]);
+			glUniform1f(glGetUniformLocation(shaderProg, "elapsedTime"), Clock.GetElapsedTime() );
 		}
 		else
 		{

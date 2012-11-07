@@ -542,6 +542,7 @@ private:
 	double deltaX;
 	double deltaY;
 	double deltaZ;
+	bool forward;
 
 public:
 
@@ -550,6 +551,8 @@ public:
 		color[0] = colors[0];
 		color[1] = colors[1];
 		color[2] = colors[2];
+
+		forward  = true;
 
 		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
 		deltaX = end[0] - centerPoint[0];
@@ -595,6 +598,7 @@ public:
 			xOffset = 0;
 			yOffset = 0;
 			zOffset = 0;
+			time = elapsedTime;
 		}
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);

@@ -7,18 +7,26 @@ Shader info log for:
 
 Shader info log for:
   Shaders/Render3dModel.frag
+0(18) : warning C7011: implicit cast from "int" to "float"
 
 Shader program info log for:
   Shaders/Render3dModel.vert
   Shaders/Render3dModel.frag
+Fragment info
+-------------
+0(18) : warning C7011: implicit cast from "int" to "float"
 
 Shader info log for:
   Shaders/BallShader.vert
 
 Shader info log for:
   Shaders/BallShader.frag
+0(15) : warning C7011: implicit cast from "int" to "float"
 
 Shader program info log for:
   Shaders/BallShader.vert
   Shaders/BallShader.frag
+Fragment info
+-------------
+0(15) : warning C7011: implicit cast from "int" to "float"
 

@@ -100,18 +100,28 @@ Level CreateSpiralLevel( Sphere levelBall )
 	spiral.addEndZone( center, 0, 0 );
 	//ToDo add phi
 	double pathColor[3] = { 0.4, 0.4, 0.4 };
-	double length = 3;
-	double pathSize = 1;
-	double theta = 30;
-	double connectPoint[3] = { 1.5, 0, 1 };
+	double length = 0.2;//3;
+	double pathSize = 1.5;
+	double theta = -60;
+	double connectPoint[3] = {0, 0, -1 +  pathSize/2 * sin( theta * M_PI/180 ) };
 	double blockCenter[3] = { connectPoint[0] + length/2* cos( theta * M_PI/180 ),
 							  connectPoint[1], 
-							  connectPoint[2] + length/2* sin( theta * M_PI/180 ) + pathSize/2 };
-	Block currentBlock = Block(pathColor, blockCenter, length, 1, 1, 30, 0);
+							  connectPoint[2] + length/2* sin( theta * M_PI/180 )};
+	Block currentBlock = Block(pathColor, blockCenter, length, 0.5, 1, theta, 0);
 	spiral.addBlock( currentBlock );
 	
-	connectPoint[0] =  connectPoint[0] + length* cos( theta * M_PI/180 );
-	connectPoint[2] = connectPoint[2] + length* sin( theta * M_PI/180 );
+	connectPoint[0] =  connectPoint[0] + 0.8 * length* cos( theta * M_PI/180 );
+	connectPoint[2] = connectPoint[2] + 0.8 * length* sin( theta * M_PI/180 );
+
+	//Block 2
+	//length = 1;
+	//pathSize = 2.5;
+	//theta = 0;
+	//blockCenter[0] = connectPoint[0] + length/2* cos( theta * M_PI/180 );
+	//blockCenter[1] = connectPoint[1];
+	//blockCenter[2] = connectPoint[2] + length/2* sin( theta * M_PI/180 );
+	//currentBlock = Block(pathColor, blockCenter, length, 0.5, 1, theta, 0);
+	//spiral.addBlock( currentBlock );
 
 	return spiral;
 }

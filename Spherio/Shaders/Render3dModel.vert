@@ -4,6 +4,7 @@
 // the normal matrix, you must construct it in the shader.
 
 uniform vec3 ballPos;
+uniform float elapsedTime;  //time in seconds since simulation began
 
 varying vec3 normal;  //normal that will be interpolated for the fragment shader
 varying vec4 vertex;
