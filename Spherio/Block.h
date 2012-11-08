@@ -1,5 +1,5 @@
 #include <SFML\Graphics.hpp>
-//#include <gl\glut.h>
+#include <gl\glut.h>
 
 void subtractVectors(double vec[4], double vec2[4], double output[4]) 
 {
@@ -419,13 +419,23 @@ private:
 	double velocity[3];
 public:
 
-	double * getCenter()
+	void getCenter(double * point)
 	{
-		double ret[3] = {center.x, center.y, center.z};
-		return ret;
+		point[0] = center.x;
+		point[1] =center.y;
+		point[2] = center.z;
 	}
 
-	Sphere(){}
+	void setCenter( Point3 newCenter )
+	{
+		center = newCenter;
+	}
+
+	void stopBall()
+	{
+		velocity[0] = velocity[1] = velocity[2] = 0;
+	}	Sphere(){}
+
 	Sphere(double *colors, double c[3],double r) {
 		color[0] = colors[0];
 		color[1] = colors[1];
@@ -540,10 +550,11 @@ public:
 			return 0;
 		}
 	}
-	int getEdgesFromDir(int direction) {
-		switch(direction) {
-		}
-	}
+	//int getEdgesFromDir(int direction) {
+	//	switch(direction) {
+	//	}
+	//}
+
 	void testCollision(Block block) {
 		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},            {0,0,1,1},{0,0,-1,1},    {0,1,0,1},{0,-1,0,1},    {-1,0,0,1},{1,0,0,1},{0,0,0,1}};
 		double normals[6][4];
@@ -665,34 +676,34 @@ public:
 		glTranslated(center.x,center.y,center.z);
 		//glScaled(radius,radius,radius);
 		glColor3dv(color);
-		glBegin(GL_TRIANGLES);
-			glVertex3d(0,0,radius);
-			glVertex3d(radius,0,0);
-			glVertex3d(0,radius,0);
-			glVertex3d(radius,0,0);
-			glVertex3d(0,0,-radius);
-			glVertex3d(0,radius,0);
-			glVertex3d(0,0,-radius);
-			glVertex3d(-radius,0,0);
-			glVertex3d(0,radius,0);
-			glVertex3d(-radius,0,0);
-			glVertex3d(0,0,radius);
-			glVertex3d(0,radius,0);
+		//glBegin(GL_TRIANGLES);
+		//	glVertex3d(0,0,radius);
+		//	glVertex3d(radius,0,0);
+		//	glVertex3d(0,radius,0);
+		//	glVertex3d(radius,0,0);
+		//	glVertex3d(0,0,-radius);
+		//	glVertex3d(0,radius,0);
+		//	glVertex3d(0,0,-radius);
+		//	glVertex3d(-radius,0,0);
+		//	glVertex3d(0,radius,0);
+		//	glVertex3d(-radius,0,0);
+		//	glVertex3d(0,0,radius);
+		//	glVertex3d(0,radius,0);
 
-			glVertex3d(0,0,radius);
-			glVertex3d(0,-radius,0);
-			glVertex3d(radius,0,0);
-			glVertex3d(radius,0,0);
-			glVertex3d(0,-radius,0);
-			glVertex3d(0,0,-radius);
-			glVertex3d(0,0,-radius);
-			glVertex3d(0,-radius,0);
-			glVertex3d(-radius,0,0);
-			glVertex3d(-radius,0,0);
-			glVertex3d(0,-radius,0);
-			glVertex3d(0,0,radius);
-		glEnd();
-		//glutSolidSphere(radius, 10, 10);
+		//	glVertex3d(0,0,radius);
+		//	glVertex3d(0,-radius,0);
+		//	glVertex3d(radius,0,0);
+		//	glVertex3d(radius,0,0);
+		//	glVertex3d(0,-radius,0);
+		//	glVertex3d(0,0,-radius);
+		//	glVertex3d(0,0,-radius);
+		//	glVertex3d(0,-radius,0);
+		//	glVertex3d(-radius,0,0);
+		//	glVertex3d(-radius,0,0);
+		//	glVertex3d(0,-radius,0);
+		//	glVertex3d(0,0,radius);
+		//glEnd();
+		glutSolidSphere(radius, 40, 40);
 		glPopMatrix();
 	}
 };
@@ -700,6 +711,7 @@ public:
 class MovingBlock : public Block {
 private:
 	double time;
+	double timeSoFar;
 	double deltaX;
 	double deltaY;
 	double deltaZ;
@@ -713,19 +725,26 @@ public:
 		color[2] = colors[2];
 
 		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
-		deltaX = end[0] - centerPoint[0];
-		deltaY = end[1] - centerPoint[1];
-		deltaZ = end[2] - centerPoint[2];
+		deltaX = (end[0] - centerPoint[0])*2;
+		deltaY = (end[1] - centerPoint[1])*2;
+		deltaZ = (end[2] - centerPoint[2])*2;
 
 		time = timeTaken;
+		timeSoFar = 0;
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 		glLoadIdentity();
+		//glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
+		//glRotated(theta, 0, 1, 0);
+		//glRotated(phi, 0, 0, 1);
+		//glScaled(w, h, d);
+
 		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
 		glRotated(theta, 0, 1, 0);
-		glRotated(phi, 0, 0, 1);
-		glScaled(w, h, d);
+		glRotated(-phi, 0, 0, 1);
+		glScaled(w/2, h/2, d/2);
+
 		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
 		glPopMatrix();
 	}
@@ -733,19 +752,34 @@ public:
 	void display(double elapsedTime)
 	{
 
-		double xOffset = (deltaX*elapsedTime)/time;
-		if (abs(xOffset) > abs(deltaX))
+		double xOffset = deltaX*(elapsedTime-timeSoFar)/time;
+		double yOffset = deltaY*(elapsedTime-timeSoFar)/time;
+		double zOffset = deltaZ*(elapsedTime-timeSoFar)/time;
+		if ( elapsedTime-timeSoFar > time )
+
 		{
+			timeSoFar = elapsedTime;
 			center.x += deltaX; // This does nothing - have to change the transformation matrix.
 			center.y += deltaY;
 			center.z += deltaZ;
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+
+			glMultMatrixd(rotationMatrix);
+			glTranslated(deltaX, deltaY, deltaZ);
+
+			glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+			glPopMatrix();
+			//printf("%.2f %.2f %.2f\n", deltaX, deltaY, deltaZ);
+
 			deltaX *= -1;
 			deltaY *= -1;
 			deltaZ *= -1;
-			xOffset = (deltaX*elapsedTime)/time;
+			xOffset = 0;
+			yOffset = 0;
+			zOffset = 0;
 		}
-		double yOffset = (deltaY*elapsedTime)/time;
-		double zOffset = (deltaZ*elapsedTime)/time;
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
 		glMatrixMode(GL_MODELVIEW);
