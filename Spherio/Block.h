@@ -1,6 +1,11 @@
 #include <SFML\Graphics.hpp>
 #include <gl\glut.h>
 
+
+class Block;
+class MovingBlock;
+class Sphere;
+
 void subtractVectors(double vec[4], double vec2[4], double output[4]) 
 {
 	output[0] = vec[0] - vec2[0];
@@ -410,6 +415,155 @@ public:
 	}
 };
 
+class MovingBlock : public Block {
+private:
+	double time;
+	double timeSoFar;
+	double deltaX;
+	double deltaY;
+	double deltaZ;
+
+public:
+	double xOffset;
+	double yOffset;
+	double zOffset;
+
+	MovingBlock(double *colors, double centerPoint[], double end[], double w, double h, double d, double theta, double phi, double timeTaken)
+	{
+		color[0] = colors[0];
+		color[1] = colors[1];
+		color[2] = colors[2];
+
+		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
+		deltaX = (end[0] - centerPoint[0])*2;
+		deltaY = (end[1] - centerPoint[1])*2;
+		deltaZ = (end[2] - centerPoint[2])*2;
+
+		xOffset = 0;
+		yOffset = 0;
+		zOffset = 0;
+
+		time = timeTaken;
+		timeSoFar = 0;
+
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		glLoadIdentity();
+		//glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
+		//glRotated(theta, 0, 1, 0);
+		//glRotated(phi, 0, 0, 1);
+		//glScaled(w, h, d);
+
+		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
+		glRotated(theta, 0, 1, 0);
+		glRotated(-phi, 0, 0, 1);
+		glScaled(w/2, h/2, d/2);
+
+		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+		glPopMatrix();
+	}
+
+	void display(double elapsedTime)
+	{
+
+		double xOffset = deltaX*(elapsedTime-timeSoFar)/time;
+		double yOffset = deltaY*(elapsedTime-timeSoFar)/time;
+		double zOffset = deltaZ*(elapsedTime-timeSoFar)/time;
+		if ( elapsedTime-timeSoFar > time )
+
+		{
+			timeSoFar = elapsedTime;
+			center.x += deltaX; // This does nothing - have to change the transformation matrix.
+			center.y += deltaY;
+			center.z += deltaZ;
+			glMatrixMode(GL_MODELVIEW);
+			glPushMatrix();
+			glLoadIdentity();
+
+			glMultMatrixd(rotationMatrix);
+			glTranslated(deltaX, deltaY, deltaZ);
+
+			glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
+			glPopMatrix();
+			//printf("%.2f %.2f %.2f\n", deltaX, deltaY, deltaZ);
+
+			deltaX *= -1;
+			deltaY *= -1;
+			deltaZ *= -1;
+			xOffset = 0;
+			yOffset = 0;
+			zOffset = 0;
+		}
+		//double currentMatrix[16];
+		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
+		glMatrixMode(GL_MODELVIEW);
+		glPushMatrix();
+		
+		//glLoadIdentity();
+		//glMultMatrixd(rotationMatrix);
+
+		glColor3dv(color);
+
+		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},{0,0,1,1},{0,0,-1,1},{0,1,0,1},{0,-1,0,1},{-1,0,0,1},{1,0,0,1},{0,0,0,1}};
+		double transformedCorners[15][4];
+		double transpose[16];
+		transposeMatrix(rotationMatrix, transpose);
+
+		for(int i=0;i<15;i++)
+		{
+			corners[i][0] += xOffset;
+			corners[i][1] += yOffset;
+			corners[i][2] += zOffset;
+			vectorTransform(transpose, corners[i], transformedCorners[i]);
+		}
+
+		for (int j = 8; j < 14; j++)
+		{
+			subtractVectors(corners[j], corners[14], corners[j]);
+		}
+
+		glBegin(GL_QUADS);
+			glNormal3dv(corners[8]);
+			glVertex3dv(transformedCorners[0]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[3]);
+			glVertex3dv(transformedCorners[2]);
+			
+			glNormal3dv(corners[9]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[6]);
+			glVertex3dv(transformedCorners[7]);
+			
+			glNormal3dv(corners[10]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[0]);
+			
+			glNormal3dv(corners[11]);
+			glVertex3dv(transformedCorners[2]);
+			glVertex3dv(transformedCorners[3]);
+			glVertex3dv(transformedCorners[7]);
+			glVertex3dv(transformedCorners[6]);
+			
+			glNormal3dv(corners[12]);
+			glVertex3dv(transformedCorners[4]);
+			glVertex3dv(transformedCorners[0]);
+			glVertex3dv(transformedCorners[2]);
+			glVertex3dv(transformedCorners[6]);
+			
+			glNormal3dv(corners[13]);
+			glVertex3dv(transformedCorners[1]);
+			glVertex3dv(transformedCorners[5]);
+			glVertex3dv(transformedCorners[7]);
+			glVertex3dv(transformedCorners[3]);
+		glEnd();
+		glPopMatrix();
+
+	}
+};
+
 class Sphere
 {
 private:
@@ -632,42 +786,94 @@ public:
 			velocity[1]-=normals[face][1]*vel;
 			velocity[2]-=normals[face][2]*vel;
 		}
+	}
 
-/*		if(dotp>0) {
-			double upsize = std::sqrt((newup[0]-newCenter[0])*(newup[0]-newCenter[0])+(newup[1]-newCenter[1])*(newup[1]-newCenter[1])+(newup[2]-newCenter[2])*(newup[2]-newCenter[2]));
-			double dist = dotp/upsize;
-			if(dist<radius) {
-				center.x = newup[0]+(center.x-newup[0])/dist*radius;
-				center.y = newup[1]+(center.y-newup[1])/dist*radius;
-				center.z = newup[2]+(center.z-newup[2])/dist*radius;
-				dotp = (newup[0]-newCenter[0])*velocity[0]+(newup[1]-newCenter[1])*velocity[1]+(newup[2]-newCenter[2])*velocity[2];
-				dotp/=upsize;
-				velocity[0] = velocity[0]-(newup[0]-newCenter[0])/upsize*dotp;
-				velocity[1] = velocity[1]-(newup[1]-newCenter[1])/upsize*dotp;
-				velocity[2] = velocity[2]-(newup[2]-newCenter[2])/upsize*dotp;
-				printf("%f\n",dotp);
+	void testCollisionMoving(MovingBlock block) {
+		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},            {0,0,1,1},{0,0,-1,1},    {0,1,0,1},{0,-1,0,1},    {-1,0,0,1},{1,0,0,1},{0,0,0,1}};
+		double normals[6][4];
+		double transpose[16];
+		//moving
+		transposeMatrix(block.rotationMatrix, transpose);
+		double transformedCorners[15][4];
+		for(int i=0;i<15;i++)
+		{
+			corners[i][0] += block.xOffset;
+			corners[i][1] += block.yOffset;
+			corners[i][2] += block.zOffset;
+			vectorTransform(transpose, corners[i], transformedCorners[i]);
+		}
+
+		for(int i=0;i<15;i++)
+			vectorTransform(transpose, transformedCorners[i], transformedCorners[i]);
+		for (int j = 0; j < 6; j++)
+		{
+			subtractVectors(corners[j+8], corners[14], normals[j]);
+			double size = std::sqrt(dotProduct(normals[j],normals[j]));
+			normals[j][0]/=size;
+			normals[j][1]/=size;
+			normals[j][2]/=size;
+		}
+		double dists[6];
+		double totalDist = 0;
+		int count = 0;int direction = 0;
+		for(int i=0;i<6;i++) {
+			dists[i] = dotProduct(normals[i],center.x-transformedCorners[i+8][0],center.y-transformedCorners[i+8][1],center.z-transformedCorners[i+8][2]);
+			if(dists[i]>0) {
+				count++;
+				direction+=1<<i;
+				totalDist+=dists[i]*dists[i];
 			}
-		}*/
-		/*
-		double quadric[16] = {1,0,0,-center.x,0,1,0,-center.y,0,0,1,-center.z,-center.x,-center.y,-center.z,center.x*center.x+center.y*center.y+center.z*center.z-radius*radius};
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-		double inverse[16];
-		gluInvertMatrix(block.rotationMatrix,inverse);
-		double inverseTranspose[16];
-		transposeMatrix(inverse,inverseTranspose);
-		double oldCenter[4];
-		oldCenter[0] = center.x;
-		oldCenter[1] = center.y;
-		oldCenter[2] = center.z;
-		oldCenter[3] = 1;
-		double newCenter[4];
-		vectorTransform(inverseTranspose,oldCenter,newCenter);
-		glMultMatrixd(transpose);
-		glMultMatrixd(quadric);
-		glMultMatrixd(block.rotationMatrix);
-		glGetDoublev(GL_MODELVIEW_MATRIX,quadric);*/
+		}
+		totalDist = std::sqrt(totalDist);
+		//printf("Distance: %.2f \tRadius: %.2f \tCount: %d \tDirection: %d \tCenterY: %.2f\n",totalDist,radius,count,direction,center.y);
+		if(totalDist>radius)
+			return;
+		if(count==3) {
+			int corner = getIndexFromDir(direction);
+			double pos[4] = {center.x,center.y,center.z,1};
+			double r[4];
+			subtractVectors(pos,transformedCorners[corner],r);
+			center.x = transformedCorners[corner][0]+r[0]/totalDist*radius;
+			center.y = transformedCorners[corner][1]+r[1]/totalDist*radius;
+			center.z = transformedCorners[corner][2]+r[2]/totalDist*radius;
+			double vel = dotProduct(velocity,r);
+			vel/=totalDist;
+			velocity[0]-=r[0]/totalDist*vel;
+			velocity[1]-=r[1]/totalDist*vel;
+			velocity[2]-=r[2]/totalDist*vel;
+		} else if(count == 2) {
+			int edge = getIndexFromDir(direction);
+			int vertex1 = edge/8;
+			int vertex2 = edge%8;
+			double pos[4] = {center.x,center.y,center.z,1};
+			double r[4];
+			subtractVectors(pos,transformedCorners[vertex1],r);
+			double edgeVector[4];
+			subtractVectors(transformedCorners[vertex2],transformedCorners[vertex1],edgeVector);
+			double edgeSize = std::sqrt(dotProduct(edgeVector,edgeVector));
+			edgeVector[0]/=edgeSize;edgeVector[1]/=edgeSize;edgeVector[2]/=edgeSize;
+			double edgeDist = dotProduct(edgeVector,r);
+			r[0]-=edgeVector[0]*edgeDist;
+			r[1]-=edgeVector[1]*edgeDist;
+			r[2]-=edgeVector[2]*edgeDist;
+			center.x+=r[0]*(radius-totalDist);
+			center.y+=r[1]*(radius-totalDist);
+			center.z+=r[2]*(radius-totalDist);
+			double vel = dotProduct(velocity,r);
+			vel/=totalDist;
+			velocity[0]-=r[0]/totalDist*vel;
+			velocity[1]-=r[1]/totalDist*vel;
+			velocity[2]-=r[2]/totalDist*vel;
+		} else if(count == 1) {
+			int face = getIndexFromDir(direction);
+			center.x+=normals[face][0]*(radius-totalDist);
+			center.y+=normals[face][1]*(radius-totalDist);
+			center.z+=normals[face][2]*(radius-totalDist);
+			double vel = dotProduct(velocity,normals[face]);
+			velocity[0]-=normals[face][0]*vel;
+			velocity[1]-=normals[face][1]*vel;
+			velocity[2]-=normals[face][2]*vel;
+		}
 	}
 
 	void display() {
@@ -676,176 +882,8 @@ public:
 		glTranslated(center.x,center.y,center.z);
 		//glScaled(radius,radius,radius);
 		glColor3dv(color);
-		//glBegin(GL_TRIANGLES);
-		//	glVertex3d(0,0,radius);
-		//	glVertex3d(radius,0,0);
-		//	glVertex3d(0,radius,0);
-		//	glVertex3d(radius,0,0);
-		//	glVertex3d(0,0,-radius);
-		//	glVertex3d(0,radius,0);
-		//	glVertex3d(0,0,-radius);
-		//	glVertex3d(-radius,0,0);
-		//	glVertex3d(0,radius,0);
-		//	glVertex3d(-radius,0,0);
-		//	glVertex3d(0,0,radius);
-		//	glVertex3d(0,radius,0);
-
-		//	glVertex3d(0,0,radius);
-		//	glVertex3d(0,-radius,0);
-		//	glVertex3d(radius,0,0);
-		//	glVertex3d(radius,0,0);
-		//	glVertex3d(0,-radius,0);
-		//	glVertex3d(0,0,-radius);
-		//	glVertex3d(0,0,-radius);
-		//	glVertex3d(0,-radius,0);
-		//	glVertex3d(-radius,0,0);
-		//	glVertex3d(-radius,0,0);
-		//	glVertex3d(0,-radius,0);
-		//	glVertex3d(0,0,radius);
-		//glEnd();
 		glutSolidSphere(radius, 40, 40);
 		glPopMatrix();
 	}
 };
 
-class MovingBlock : public Block {
-private:
-	double time;
-	double timeSoFar;
-	double deltaX;
-	double deltaY;
-	double deltaZ;
-
-public:
-
-	MovingBlock(double *colors, double centerPoint[], double end[], double w, double h, double d, double theta, double phi, double timeTaken)
-	{
-		color[0] = colors[0];
-		color[1] = colors[1];
-		color[2] = colors[2];
-
-		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
-		deltaX = (end[0] - centerPoint[0])*2;
-		deltaY = (end[1] - centerPoint[1])*2;
-		deltaZ = (end[2] - centerPoint[2])*2;
-
-		time = timeTaken;
-		timeSoFar = 0;
-
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		glLoadIdentity();
-		//glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
-		//glRotated(theta, 0, 1, 0);
-		//glRotated(phi, 0, 0, 1);
-		//glScaled(w, h, d);
-
-		glTranslated(centerPoint[0], centerPoint[1], centerPoint[2]);
-		glRotated(theta, 0, 1, 0);
-		glRotated(-phi, 0, 0, 1);
-		glScaled(w/2, h/2, d/2);
-
-		glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
-		glPopMatrix();
-	}
-
-	void display(double elapsedTime)
-	{
-
-		double xOffset = deltaX*(elapsedTime-timeSoFar)/time;
-		double yOffset = deltaY*(elapsedTime-timeSoFar)/time;
-		double zOffset = deltaZ*(elapsedTime-timeSoFar)/time;
-		if ( elapsedTime-timeSoFar > time )
-
-		{
-			timeSoFar = elapsedTime;
-			center.x += deltaX; // This does nothing - have to change the transformation matrix.
-			center.y += deltaY;
-			center.z += deltaZ;
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-
-			glMultMatrixd(rotationMatrix);
-			glTranslated(deltaX, deltaY, deltaZ);
-
-			glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
-			glPopMatrix();
-			//printf("%.2f %.2f %.2f\n", deltaX, deltaY, deltaZ);
-
-			deltaX *= -1;
-			deltaY *= -1;
-			deltaZ *= -1;
-			xOffset = 0;
-			yOffset = 0;
-			zOffset = 0;
-		}
-		//double currentMatrix[16];
-		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
-		glMatrixMode(GL_MODELVIEW);
-		glPushMatrix();
-		
-		//glLoadIdentity();
-		glMultMatrixd(rotationMatrix);
-
-		glColor3dv(color);
-
-		// Near face
-		glColor3d(1, 1, 1);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-		glEnd();
-
-		// Far face
-		
-		glColor3d(0.5, 0.5, 0.5);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
-
-		// Top face
-		glColor3d(1, 0, 0);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
-
-		// Bottom face
-		glColor3d(0, 1, 1);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-		glEnd();
-
-		// Right face
-		glColor3d(0, 1, 0);
-		glBegin(GL_QUADS);
-			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
-
-		// Left face
-		glColor3d(1, 0, 1);
-		glBegin(GL_QUADS);
-			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		glEnd();
-		
-		glPopMatrix();
-
-	}
-};

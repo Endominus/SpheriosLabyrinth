@@ -148,7 +148,7 @@ public:
 		
 		for (i = 0; i < currentMovingBlock; i++)
 		{
-			ball->testCollision(pmb[i]);
+			ball->testCollisionMoving(pmb[i]);
 		}
 	}
 };
@@ -233,7 +233,7 @@ Level createLevel4(Sphere *ball) {
 	double w[] =		     {2,			1,			    2,		   3,			    1,				3,					4,			4,			  2,		2.4};
 	double d[] =			 {13,		    2,				2,		   1,				2,				1,					2,			2,				5,		2};
 	double h[] =			 {1,			1.5,			1,		   1.5,				1.5,			1.5,				1,			1,				1,		1};
-	double colorBlock[] = {0.4, 0.4, 0.4};
+	double colorBlock[] = {0.6, 0.6, 0.6};
 	double colorMove[] = {0.8, 0.1, 0.1};
 
 	double movingStart[4][3] =	{{2,1,12.5}, {8, -2, 12}, {14, 1, 13.5}, {10, 1, 15.5} };
