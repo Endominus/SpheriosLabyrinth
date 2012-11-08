@@ -379,4 +379,8 @@ int main(int argc, char **argv)
 	GLBox prog;
 	return EXIT_SUCCESS;
 }
+<<<<<<< .mine
 
+=======
+
+>>>>>>> .r30
