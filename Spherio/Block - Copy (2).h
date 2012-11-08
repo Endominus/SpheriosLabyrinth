@@ -1,7 +1,6 @@
 #include <SFML\Graphics.hpp>
 //#include <gl\glut.h>
 
-#define FRICTION 20
 void subtractVectors(double vec[4], double vec2[4], double output[4]) 
 {
 	output[0] = vec[0] - vec2[0];
@@ -167,6 +166,22 @@ struct Point3{
 
 	Point3(){}
 };
+struct Point4{
+	double x;
+	double y;
+	double z;
+	double w;
+
+	Point4(double a, double b, double c,double d) 
+	{
+		x = a;
+		y = b;
+		z = c;
+		w = d;
+	}
+
+	Point4(){}
+};
 
 void vectorTransform(double transform[16],double input[4],double output[4]) {
 	double w = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
@@ -178,6 +193,14 @@ void vectorTransform(double transform[16],double input[4],double output[4]) {
 	output[2] = z;
 	output[3] = 1;
 	}
+
+Point4 vectorTransform(double transform[16],Point4 input) {
+	double w = transform[12]*input.x+transform[13]*input.y+transform[14]*input.z+transform[15]*input.w;
+	double x = (transform[0]*input.x+transform[1]*input.y+transform[2]*input.z+transform[3]*input.w)/w;
+	double y = (transform[4]*input.x+transform[5]*input.y+transform[6]*input.z+transform[7]*input.w)/w;
+	double z = (transform[8]*input.x+transform[9]*input.y+transform[10]*input.z+transform[11]*input.w)/w;
+	return Point4(x,y,z,1);
+}
 
 class Block 
 {
@@ -241,23 +264,8 @@ public:
 		glPopMatrix();
 	}
 
-	int getColorFromIndex(int index) {
-		switch(index) {
-			case 0:
-				return 255*256*256+0*256+0;
-			case 1:
-				return 255*256*256+255*256+0;
-			case 2:
-				return 0*256*256+255*256+0;
-			case 3:
-				return 0*256*256+255*256+255;
-			case 4:
-				return 0*256*256+0*256+255;
-			default:
-				return 255*256+255*256+255;
-		}
-	}
-	void display(bool shadow, int i) 
+
+	void display() 
 	{
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
@@ -265,14 +273,8 @@ public:
 		glPushMatrix();
 		
 		//glMultMatrixd(rotationMatrix);
-		if(shadow) {
-			int color = getColorFromIndex(i);
-			//printf("%d, %d, %d\n",i/256/256,(i/256)%256,i%256);
-			glColor3ub(color/256/256,(color/256)%256,color%256);
-		} else  {
-			glColor3dv(color);
-			glVertexAttrib1f(0,i);
-		}
+
+		glColor3dv(color);
 		//glColor3d(1,1,1);
 
 //		glColor3d(1, 1, 1);
@@ -365,10 +367,6 @@ public:
 		for (int j = 8; j < 14; j++)
 		{
 			subtractVectors(corners[j], corners[14], corners[j]);
-			double size = std::sqrt(dotProduct(corners[j],corners[j]));
-			corners[j][0]/=size;
-			corners[j][1]/=size;
-			corners[j][2]/=size;
 		}
 
 		glBegin(GL_QUADS);
@@ -421,21 +419,10 @@ private:
 	double velocity[3];
 public:
 
-	void getCenter( double * centerPos)
+	double * getCenter()
 	{
-		centerPos[0] = center.x;
-		centerPos[1] = center.y;
-		centerPos[2] = center.z;
-	}
-
-	void setCenter( Point3 newCenter )
-	{
-		center = newCenter;
-	}
-
-	void stopBall()
-	{
-		velocity[0] = velocity[1] = velocity[2] = 0;
+		double ret[3] = {center.x, center.y, center.z};
+		return ret;
 	}
 
 	Sphere(){}
@@ -553,6 +540,10 @@ public:
 			return 0;
 		}
 	}
+	int getEdgesFromDir(int direction) {
+		switch(direction) {
+		}
+	}
 	void testCollision(Block block) {
 		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},            {0,0,1,1},{0,0,-1,1},    {0,1,0,1},{0,-1,0,1},    {-1,0,0,1},{1,0,0,1},{0,0,0,1}};
 		double normals[6][4];
@@ -584,7 +575,6 @@ public:
 		//printf("Distance: %.2f \tRadius: %.2f \tCount: %d \tDirection: %d \tCenterY: %.2f\n",totalDist,radius,count,direction,center.y);
 		if(totalDist>radius)
 			return;
-		double vel;
 		if(count==3) {
 			int corner = getIndexFromDir(direction);
 			double pos[4] = {center.x,center.y,center.z,1};
@@ -593,7 +583,7 @@ public:
 			center.x = corners[corner][0]+r[0]/totalDist*radius;
 			center.y = corners[corner][1]+r[1]/totalDist*radius;
 			center.z = corners[corner][2]+r[2]/totalDist*radius;
-			vel = dotProduct(velocity,r);
+			double vel = dotProduct(velocity,r);
 			vel/=totalDist;
 			velocity[0]-=r[0]/totalDist*vel;
 			velocity[1]-=r[1]/totalDist*vel;
@@ -616,7 +606,7 @@ public:
 			center.x+=r[0]*(radius-totalDist);
 			center.y+=r[1]*(radius-totalDist);
 			center.z+=r[2]*(radius-totalDist);
-			vel = dotProduct(velocity,r);
+			double vel = dotProduct(velocity,r);
 			vel/=totalDist;
 			velocity[0]-=r[0]/totalDist*vel;
 			velocity[1]-=r[1]/totalDist*vel;
@@ -626,14 +616,11 @@ public:
 			center.x+=normals[face][0]*(radius-totalDist);
 			center.y+=normals[face][1]*(radius-totalDist);
 			center.z+=normals[face][2]*(radius-totalDist);
-			vel = dotProduct(velocity,normals[face]);
+			double vel = dotProduct(velocity,normals[face]);
 			velocity[0]-=normals[face][0]*vel;
 			velocity[1]-=normals[face][1]*vel;
 			velocity[2]-=normals[face][2]*vel;
 		}
-		velocity[0] = (1+FRICTION*vel)*velocity[0];
-		velocity[1] = (1+FRICTION*vel)*velocity[1];
-		velocity[2] = (1+FRICTION*vel)*velocity[2];
 
 /*		if(dotp>0) {
 			double upsize = std::sqrt((newup[0]-newCenter[0])*(newup[0]-newCenter[0])+(newup[1]-newCenter[1])*(newup[1]-newCenter[1])+(newup[2]-newCenter[2])*(newup[2]-newCenter[2]));
@@ -647,6 +634,7 @@ public:
 				velocity[0] = velocity[0]-(newup[0]-newCenter[0])/upsize*dotp;
 				velocity[1] = velocity[1]-(newup[1]-newCenter[1])/upsize*dotp;
 				velocity[2] = velocity[2]-(newup[2]-newCenter[2])/upsize*dotp;
+				printf("%f\n",dotp);
 			}
 		}*/
 		/*
@@ -712,11 +700,9 @@ public:
 class MovingBlock : public Block {
 private:
 	double time;
-	double timeSoFar;
 	double deltaX;
 	double deltaY;
 	double deltaZ;
-	bool forward;
 
 public:
 
@@ -726,15 +712,12 @@ public:
 		color[1] = colors[1];
 		color[2] = colors[2];
 
-		forward  = true;
-
 		center = Point3(centerPoint[0], centerPoint[1], centerPoint[2]);
 		deltaX = end[0] - centerPoint[0];
 		deltaY = end[1] - centerPoint[1];
 		deltaZ = end[2] - centerPoint[2];
 
 		time = timeTaken;
-		timeSoFar = 0;
 
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
@@ -749,151 +732,86 @@ public:
 
 	void display(double elapsedTime)
 	{
-		double xOffset = (deltaX*(elapsedTime-timeSoFar))/time;
-		double yOffset = (deltaY*(elapsedTime-timeSoFar))/time;
-		double zOffset = (deltaZ*(elapsedTime-timeSoFar))/time;
-		if (abs(xOffset) > abs(deltaX) || abs(yOffset) > abs(deltaY) || abs(zOffset) > abs(deltaZ))
+
+		double xOffset = (deltaX*elapsedTime)/time;
+		if (abs(xOffset) > abs(deltaX))
 		{
-			timeSoFar = elapsedTime;
-			center.x += deltaX;
+			center.x += deltaX; // This does nothing - have to change the transformation matrix.
 			center.y += deltaY;
 			center.z += deltaZ;
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-			glTranslated(2*deltaX, 2*deltaY, 2*deltaZ);
-			glMultMatrixd(rotationMatrix);
-			glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
-			glPopMatrix();
-			//printf("%.2f %.2f %.2f\n", deltaX, deltaY, deltaZ);
 			deltaX *= -1;
 			deltaY *= -1;
 			deltaZ *= -1;
-			xOffset = 0;
-			yOffset = 0;
-			zOffset = 0;
-			time = elapsedTime;
+			xOffset = (deltaX*elapsedTime)/time;
 		}
+		double yOffset = (deltaY*elapsedTime)/time;
+		double zOffset = (deltaZ*elapsedTime)/time;
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
-
+		
+		//glLoadIdentity();
+		glMultMatrixd(rotationMatrix);
 
 		glColor3dv(color);
 
-		//// Near face
-		//glColor3d(1, 1, 1);
-		//glBegin(GL_QUADS);
-		//	glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-		//	glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-		//glEnd();
-
-		//// Far face
-		//
-		//glColor3d(0.5, 0.5, 0.5);
-		//glBegin(GL_QUADS);
-		//	glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-		//	glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-		//	glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-		//	glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		//glEnd();
-
-		//// Top face
-		//glColor3d(1, 0, 0);
-		//glBegin(GL_QUADS);
-		//	glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-		//	glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		//glEnd();
-
-		//// Bottom face
-		//glColor3d(0, 1, 1);
-		//glBegin(GL_QUADS);
-		//	glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-		//	glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-		//glEnd();
-
-		//// Right face
-		//glColor3d(0, 1, 0);
-		//glBegin(GL_QUADS);
-		//	glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
-		//	glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
-		//	glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
-		//glEnd();
-
-		//// Left face
-		//glColor3d(1, 0, 1);
-		//glBegin(GL_QUADS);
-		//	glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
-		//	glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
-		//	glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
-		//	glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
-		//glEnd();
-		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},{0,0,1,1},{0,0,-1,1},{0,1,0,1},{0,-1,0,1},{-1,0,0,1},{1,0,0,1},{0,0,0,1}};
-		double transformedCorners[15][4];
-		double transpose[16];
-		transposeMatrix(rotationMatrix, transpose);
-
-		for(int i=0;i<15;i++)
-		{
-			corners[i][0] += xOffset;
-			corners[i][1] += yOffset;
-			corners[i][2] += zOffset;
-			vectorTransform(transpose, corners[i], transformedCorners[i]);
-		}
-
-		for (int j = 8; j < 14; j++)
-		{
-			subtractVectors(corners[j], corners[14], corners[j]);
-		}
-
+		// Near face
+		glColor3d(1, 1, 1);
 		glBegin(GL_QUADS);
-			glNormal3dv(corners[8]);
-			glVertex3dv(transformedCorners[0]);
-			glVertex3dv(transformedCorners[1]);
-			glVertex3dv(transformedCorners[3]);
-			glVertex3dv(transformedCorners[2]);
-			
-			glNormal3dv(corners[9]);
-			glVertex3dv(transformedCorners[5]);
-			glVertex3dv(transformedCorners[4]);
-			glVertex3dv(transformedCorners[6]);
-			glVertex3dv(transformedCorners[7]);
-			
-			glNormal3dv(corners[10]);
-			glVertex3dv(transformedCorners[4]);
-			glVertex3dv(transformedCorners[5]);
-			glVertex3dv(transformedCorners[1]);
-			glVertex3dv(transformedCorners[0]);
-			
-			glNormal3dv(corners[11]);
-			glVertex3dv(transformedCorners[2]);
-			glVertex3dv(transformedCorners[3]);
-			glVertex3dv(transformedCorners[7]);
-			glVertex3dv(transformedCorners[6]);
-			
-			glNormal3dv(corners[12]);
-			glVertex3dv(transformedCorners[4]);
-			glVertex3dv(transformedCorners[0]);
-			glVertex3dv(transformedCorners[2]);
-			glVertex3dv(transformedCorners[6]);
-			
-			glNormal3dv(corners[13]);
-			glVertex3dv(transformedCorners[1]);
-			glVertex3dv(transformedCorners[5]);
-			glVertex3dv(transformedCorners[7]);
-			glVertex3dv(transformedCorners[3]);
+			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
 		glEnd();
+
+		// Far face
+		
+		glColor3d(0.5, 0.5, 0.5);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Top face
+		glColor3d(1, 0, 0);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Bottom face
+		glColor3d(0, 1, 1);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Right face
+		glColor3d(0, 1, 0);
+		glBegin(GL_QUADS);
+			glVertex3d(1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+
+		// Left face
+		glColor3d(1, 0, 1);
+		glBegin(GL_QUADS);
+			glVertex3d(-1+xOffset, 1+yOffset, -1+zOffset);
+			glVertex3d(-1+xOffset, -1+yOffset, -1+zOffset);
+			glVertex3d(-1+xOffset, -1+yOffset, 1+zOffset);
+			glVertex3d(-1+xOffset, 1+yOffset, 1+zOffset);
+		glEnd();
+		
 		glPopMatrix();
 
 	}
 };
-
-

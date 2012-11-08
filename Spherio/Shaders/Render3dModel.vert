@@ -5,14 +5,19 @@
 
 uniform vec3 ballPos;
 uniform float elapsedTime;  //time in seconds since simulation began
+uniform sampler2D texId; //this is the texture unit that has the rendered image
+attribute float colorIndex;
+
 
 varying vec3 normal;  //normal that will be interpolated for the fragment shader
 varying vec4 vertex;
 varying vec3 lightPos;
+varying float index;
 
 
 void main()
 {	
+	index = colorIndex;
 	vertex = gl_Vertex;
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;  //output the transformed vertex
 	lightPos = ballPos;

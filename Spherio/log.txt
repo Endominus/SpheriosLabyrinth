@@ -7,26 +7,214 @@ Shader info log for:
 
 Shader info log for:
   Shaders/Render3dModel.frag
-0(18) : warning C7011: implicit cast from "int" to "float"
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(45) : warning C7011: implicit cast from "int" to "float"
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7011: implicit cast from "int" to "float"
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7011: implicit cast from "int" to "float"
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7011: implicit cast from "int" to "float"
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7011: implicit cast from "int" to "float"
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7011: implicit cast from "int" to "float"
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7011: implicit cast from "int" to "float"
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7011: implicit cast from "int" to "float"
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7011: implicit cast from "int" to "float"
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7011: implicit cast from "int" to "float"
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7011: implicit cast from "int" to "float"
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7011: implicit cast from "int" to "float"
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7011: implicit cast from "int" to "float"
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7011: implicit cast from "int" to "float"
+0(60) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7011: implicit cast from "int" to "float"
+0(67) : warning C7011: implicit cast from "int" to "float"
+0(67) : warning C7011: implicit cast from "int" to "float"
+0(68) : warning C7011: implicit cast from "int" to "float"
+0(68) : warning C7011: implicit cast from "int" to "float"
+0(69) : warning C7011: implicit cast from "float" to "int"
+0(69) : warning C7011: implicit cast from "vec4" to "vec2"
+0(69) : warning C7011: implicit cast from "vec4" to "vec3"
+0(70) : warning C7011: implicit cast from "int" to "float"
+0(88) : warning C7011: implicit cast from "int" to "float"
+0(89) : warning C7011: implicit cast from "int" to "float"
+0(92) : warning C7011: implicit cast from "int" to "float"
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7563: assignment to uniform shadowMatrix
 
 Shader program info log for:
   Shaders/Render3dModel.vert
   Shaders/Render3dModel.frag
 Fragment info
 -------------
-0(18) : warning C7011: implicit cast from "int" to "float"
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(45) : warning C7011: implicit cast from "int" to "float"
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7011: implicit cast from "int" to "float"
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7011: implicit cast from "int" to "float"
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7011: implicit cast from "int" to "float"
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7011: implicit cast from "int" to "float"
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7011: implicit cast from "int" to "float"
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7011: implicit cast from "int" to "float"
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7011: implicit cast from "int" to "float"
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7011: implicit cast from "int" to "float"
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7011: implicit cast from "int" to "float"
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7011: implicit cast from "int" to "float"
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7011: implicit cast from "int" to "float"
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7011: implicit cast from "int" to "float"
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7011: implicit cast from "int" to "float"
+0(60) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7011: implicit cast from "int" to "float"
+0(67) : warning C7011: implicit cast from "int" to "float"
+0(67) : warning C7011: implicit cast from "int" to "float"
+0(68) : warning C7011: implicit cast from "int" to "float"
+0(68) : warning C7011: implicit cast from "int" to "float"
+0(69) : warning C7011: implicit cast from "float" to "int"
+0(69) : warning C7011: implicit cast from "vec4" to "vec2"
+0(69) : warning C7011: implicit cast from "vec4" to "vec3"
+0(70) : warning C7011: implicit cast from "int" to "float"
+0(88) : warning C7011: implicit cast from "int" to "float"
+0(89) : warning C7011: implicit cast from "int" to "float"
+0(92) : warning C7011: implicit cast from "int" to "float"
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7563: assignment to uniform shadowMatrix
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7563: assignment to uniform shadowMatrix
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7563: assignment to uniform shadowMatrix
+0(45) : warning C7563: assignment to uniform shadowMatrix
+0(46) : warning C7563: assignment to uniform shadowMatrix
+0(47) : warning C7563: assignment to uniform shadowMatrix
+0(48) : warning C7563: assignment to uniform shadowMatrix
+0(49) : warning C7563: assignment to uniform shadowMatrix
+0(50) : warning C7563: assignment to uniform shadowMatrix
+0(51) : warning C7563: assignment to uniform shadowMatrix
+0(52) : warning C7563: assignment to uniform shadowMatrix
+0(53) : warning C7563: assignment to uniform shadowMatrix
+0(54) : warning C7563: assignment to uniform shadowMatrix
+0(55) : warning C7563: assignment to uniform shadowMatrix
+0(56) : warning C7563: assignment to uniform shadowMatrix
+0(57) : warning C7563: assignment to uniform shadowMatrix
+0(58) : warning C7563: assignment to uniform shadowMatrix
+0(59) : warning C7563: assignment to uniform shadowMatrix
+0(60) : warning C7563: assignment to uniform shadowMatrix
+0(45) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(46) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(47) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(48) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(49) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(50) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(51) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(52) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(53) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(54) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(55) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(56) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(57) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(58) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(59) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
+0(60) : warning C7504: OpenGL does not allow writing to input variable 'shadowMatrix'
 
 Shader info log for:
   Shaders/BallShader.vert
 
 Shader info log for:
   Shaders/BallShader.frag
-0(15) : warning C7011: implicit cast from "int" to "float"
+0(16) : warning C7011: implicit cast from "int" to "float"
 
 Shader program info log for:
   Shaders/BallShader.vert
   Shaders/BallShader.frag
 Fragment info
 -------------
-0(15) : warning C7011: implicit cast from "int" to "float"
+0(16) : warning C7011: implicit cast from "int" to "float"
+
+Shader info log for:
+  Shaders/ShadowShader.vert
+
+Shader info log for:
+  Shaders/ShadowShader.frag
+
+Shader program info log for:
+  Shaders/ShadowShader.vert
+  Shaders/ShadowShader.frag
 

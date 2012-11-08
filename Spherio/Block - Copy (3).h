@@ -1,25 +1,8 @@
 #include <SFML\Graphics.hpp>
-//#include <gl\glut.h>
+#include <gl\glut.h>
 
-#define FRICTION 20
-void subtractVectors(double vec[4], double vec2[4], double output[4]) 
+void transposeMatrix(double m[16],double output[16]) 
 {
-	output[0] = vec[0] - vec2[0];
-	output[1] = vec[1] - vec2[1];
-	output[2] = vec[2] - vec2[2];
-	output[3] = 1;
-}
-
-double dotProduct(double vec[4],double vec2[4])
-{
-	return vec[0]*vec2[0]+vec[1]*vec2[1]+vec[2]*vec2[2];
-}
-double dotProduct(double vec[4],double x,double y,double z)
-{
-	return vec[0]*x+vec[1]*y+vec[2]*z;
-}
-
-void transposeMatrix(double m[16],double output[16]) {
 	for(int i=0;i<4;i++)
 		for(int j=0;j<4;j++)
 			output[i*4+j]=m[j*4+i];
@@ -169,14 +152,11 @@ struct Point3{
 };
 
 void vectorTransform(double transform[16],double input[4],double output[4]) {
-	double w = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
-	double x = (transform[0]*input[0]+transform[1]*input[1]+transform[2]*input[2]+transform[3]*input[3])/w;
-	double y = (transform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/w;
-	double z = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/w;
-	output[0] = x;
-	output[1] = y;
-	output[2] = z;
-	output[3] = 1;
+		output[3] = transform[12]*input[0]+transform[13]*input[1]+transform[14]*input[2]+transform[15]*input[3];
+		output[0] = (transform[0]*input[0]+transform[1]*input[1]+transform[2]*input[2]+transform[3]*input[3])/output[3];
+		output[1] = (transform[4]*input[0]+transform[5]*input[1]+transform[6]*input[2]+transform[7]*input[3])/output[3];
+		output[2] = (transform[8]*input[0]+transform[9]*input[1]+transform[10]*input[2]+transform[11]*input[3])/output[3];
+		output[3] = 1;
 	}
 
 class Block 
@@ -196,6 +176,13 @@ protected:
 		p.z = a[2];
 	}
 
+	void subtractVectors(double vec[4], double vec2[4], double output[4]) 
+	{
+		output[0] = vec[0] - vec2[0];
+		output[1] = vec[1] - vec2[1];
+		output[2] = vec[2] - vec2[2];
+		output[3] = 1;
+	}
 
 public:
 	double rotationMatrix[16];
@@ -241,23 +228,7 @@ public:
 		glPopMatrix();
 	}
 
-	int getColorFromIndex(int index) {
-		switch(index) {
-			case 0:
-				return 255*256*256+0*256+0;
-			case 1:
-				return 255*256*256+255*256+0;
-			case 2:
-				return 0*256*256+255*256+0;
-			case 3:
-				return 0*256*256+255*256+255;
-			case 4:
-				return 0*256*256+0*256+255;
-			default:
-				return 255*256+255*256+255;
-		}
-	}
-	void display(bool shadow, int i) 
+	void display() 
 	{
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
@@ -265,14 +236,8 @@ public:
 		glPushMatrix();
 		
 		//glMultMatrixd(rotationMatrix);
-		if(shadow) {
-			int color = getColorFromIndex(i);
-			//printf("%d, %d, %d\n",i/256/256,(i/256)%256,i%256);
-			glColor3ub(color/256/256,(color/256)%256,color%256);
-		} else  {
-			glColor3dv(color);
-			glVertexAttrib1f(0,i);
-		}
+
+		glColor3dv(color);
 		//glColor3d(1,1,1);
 
 //		glColor3d(1, 1, 1);
@@ -365,10 +330,6 @@ public:
 		for (int j = 8; j < 14; j++)
 		{
 			subtractVectors(corners[j], corners[14], corners[j]);
-			double size = std::sqrt(dotProduct(corners[j],corners[j]));
-			corners[j][0]/=size;
-			corners[j][1]/=size;
-			corners[j][2]/=size;
 		}
 
 		glBegin(GL_QUADS);
@@ -489,153 +450,18 @@ public:
 		} else if(z!=0) {
 		}
 	}*/
-	int getIndexFromDir(int direction) {
-		switch(direction) {
-			//corner
-		case 21:
-			return 0;
-		case 22:
-			return 4;
-		case 25:
-			return 2;
-		case 26:
-			return 6;
-		case 37:
-			return 1;
-		case 38:
-			return 5;
-		case 41:
-			return 3;
-		case 42:
-			return 7;
 
-			//face
-		case 1:
-			return 0;
-		case 2:
-			return 1;
-		case 4:
-			return 2;
-		case 8:
-			return 3;
-		case 16:
-			return 4;
-		case 32:
-			return 5;
-
-			//edge
-		case 5:
-			return 0*8+1;
-		case 6:
-			return 4*8+5;
-		case 9:
-			return 2*8+3;
-		case 10:
-			return 6*8+7;
-		case 17:
-			return 0*8+2;
-		case 18:
-			return 4*8+6;
-		case 33:
-			return 1*8+3;
-		case 34:
-			return 5*8+7;
-		case 20:
-			return 0*8+4;
-		case 24:
-			return 2*8+6;
-		case 36:
-			return 1*8+5;
-		case 40:
-			return 3*8+7;
-		default:
-			printf("Invalid direction: %d",direction);
-			return 0;
-		}
-	}
 	void testCollision(Block block) {
-		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},            {0,0,1,1},{0,0,-1,1},    {0,1,0,1},{0,-1,0,1},    {-1,0,0,1},{1,0,0,1},{0,0,0,1}};
-		double normals[6][4];
 		double transpose[16];
-		transposeMatrix(block.rotationMatrix, transpose);
-
-		for(int i=0;i<15;i++)
-			vectorTransform(transpose, corners[i], corners[i]);
-		for (int j = 0; j < 6; j++)
-		{
-			subtractVectors(corners[j+8], corners[14], normals[j]);
-			double size = std::sqrt(dotProduct(normals[j],normals[j]));
-			normals[j][0]/=size;
-			normals[j][1]/=size;
-			normals[j][2]/=size;
-		}
-		double dists[6];
-		double totalDist = 0;
-		int count = 0;int direction = 0;
-		for(int i=0;i<6;i++) {
-			dists[i] = dotProduct(normals[i],center.x-corners[i+8][0],center.y-corners[i+8][1],center.z-corners[i+8][2]);
-			if(dists[i]>0) {
-				count++;
-				direction+=1<<i;
-				totalDist+=dists[i]*dists[i];
-			}
-		}
-		totalDist = std::sqrt(totalDist);
-		//printf("Distance: %.2f \tRadius: %.2f \tCount: %d \tDirection: %d \tCenterY: %.2f\n",totalDist,radius,count,direction,center.y);
-		if(totalDist>radius)
-			return;
-		double vel;
-		if(count==3) {
-			int corner = getIndexFromDir(direction);
-			double pos[4] = {center.x,center.y,center.z,1};
-			double r[4];
-			subtractVectors(pos,corners[corner],r);
-			center.x = corners[corner][0]+r[0]/totalDist*radius;
-			center.y = corners[corner][1]+r[1]/totalDist*radius;
-			center.z = corners[corner][2]+r[2]/totalDist*radius;
-			vel = dotProduct(velocity,r);
-			vel/=totalDist;
-			velocity[0]-=r[0]/totalDist*vel;
-			velocity[1]-=r[1]/totalDist*vel;
-			velocity[2]-=r[2]/totalDist*vel;
-		} else if(count == 2) {
-			int edge = getIndexFromDir(direction);
-			int vertex1 = edge/8;
-			int vertex2 = edge%8;
-			double pos[4] = {center.x,center.y,center.z,1};
-			double r[4];
-			subtractVectors(pos,corners[vertex1],r);
-			double edgeVector[4];
-			subtractVectors(corners[vertex2],corners[vertex1],edgeVector);
-			double edgeSize = std::sqrt(dotProduct(edgeVector,edgeVector));
-			edgeVector[0]/=edgeSize;edgeVector[1]/=edgeSize;edgeVector[2]/=edgeSize;
-			double edgeDist = dotProduct(edgeVector,r);
-			r[0]-=edgeVector[0]*edgeDist;
-			r[1]-=edgeVector[1]*edgeDist;
-			r[2]-=edgeVector[2]*edgeDist;
-			center.x+=r[0]*(radius-totalDist);
-			center.y+=r[1]*(radius-totalDist);
-			center.z+=r[2]*(radius-totalDist);
-			vel = dotProduct(velocity,r);
-			vel/=totalDist;
-			velocity[0]-=r[0]/totalDist*vel;
-			velocity[1]-=r[1]/totalDist*vel;
-			velocity[2]-=r[2]/totalDist*vel;
-		} else if(count == 1) {
-			int face = getIndexFromDir(direction);
-			center.x+=normals[face][0]*(radius-totalDist);
-			center.y+=normals[face][1]*(radius-totalDist);
-			center.z+=normals[face][2]*(radius-totalDist);
-			vel = dotProduct(velocity,normals[face]);
-			velocity[0]-=normals[face][0]*vel;
-			velocity[1]-=normals[face][1]*vel;
-			velocity[2]-=normals[face][2]*vel;
-		}
-		velocity[0] = (1+FRICTION*vel)*velocity[0];
-		velocity[1] = (1+FRICTION*vel)*velocity[1];
-		velocity[2] = (1+FRICTION*vel)*velocity[2];
-
-/*		if(dotp>0) {
+		transposeMatrix(block.rotationMatrix,transpose);
+		double blockCenter[4];blockCenter[0]=0;blockCenter[1]=0;blockCenter[2]=0;blockCenter[3]=1;
+		double newCenter[4];
+		vectorTransform(transpose,blockCenter,newCenter);
+		double up[4];up[0]=0;up[1]=1;up[2]=0;up[3]=1;
+		double newup[4];
+		vectorTransform(transpose,up,newup);
+		double dotp = (newup[0]-newCenter[0])*(center.x-newup[0])+(newup[1]-newCenter[1])*(center.y-newup[1])+(newup[2]-newCenter[2])*(center.z-newup[2]);
+		if(dotp>0) {
 			double upsize = std::sqrt((newup[0]-newCenter[0])*(newup[0]-newCenter[0])+(newup[1]-newCenter[1])*(newup[1]-newCenter[1])+(newup[2]-newCenter[2])*(newup[2]-newCenter[2]));
 			double dist = dotp/upsize;
 			if(dist<radius) {
@@ -648,7 +474,7 @@ public:
 				velocity[1] = velocity[1]-(newup[1]-newCenter[1])/upsize*dotp;
 				velocity[2] = velocity[2]-(newup[2]-newCenter[2])/upsize*dotp;
 			}
-		}*/
+		}
 		/*
 		double quadric[16] = {1,0,0,-center.x,0,1,0,-center.y,0,0,1,-center.z,-center.x,-center.y,-center.z,center.x*center.x+center.y*center.y+center.z*center.z-radius*radius};
 		glMatrixMode(GL_MODELVIEW);
@@ -677,34 +503,34 @@ public:
 		glTranslated(center.x,center.y,center.z);
 		//glScaled(radius,radius,radius);
 		glColor3dv(color);
-		glBegin(GL_TRIANGLES);
-			glVertex3d(0,0,radius);
-			glVertex3d(radius,0,0);
-			glVertex3d(0,radius,0);
-			glVertex3d(radius,0,0);
-			glVertex3d(0,0,-radius);
-			glVertex3d(0,radius,0);
-			glVertex3d(0,0,-radius);
-			glVertex3d(-radius,0,0);
-			glVertex3d(0,radius,0);
-			glVertex3d(-radius,0,0);
-			glVertex3d(0,0,radius);
-			glVertex3d(0,radius,0);
+		/*glBegin(GL_TRIANGLES);
+			glVertex3d(0,0,1);
+			glVertex3d(1,0,0);
+			glVertex3d(0,1,0);
+			glVertex3d(1,0,0);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,1,0);
+			glVertex3d(0,0,-1);
+			glVertex3d(-1,0,0);
+			glVertex3d(0,1,0);
+			glVertex3d(-1,0,0);
+			glVertex3d(0,0,1);
+			glVertex3d(0,1,0);
 
-			glVertex3d(0,0,radius);
-			glVertex3d(0,-radius,0);
-			glVertex3d(radius,0,0);
-			glVertex3d(radius,0,0);
-			glVertex3d(0,-radius,0);
-			glVertex3d(0,0,-radius);
-			glVertex3d(0,0,-radius);
-			glVertex3d(0,-radius,0);
-			glVertex3d(-radius,0,0);
-			glVertex3d(-radius,0,0);
-			glVertex3d(0,-radius,0);
-			glVertex3d(0,0,radius);
-		glEnd();
-		//glutSolidSphere(radius, 10, 10);
+			glVertex3d(0,0,1);
+			glVertex3d(0,-1,0);
+			glVertex3d(1,0,0);
+			glVertex3d(1,0,0);
+			glVertex3d(0,-1,0);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,0,-1);
+			glVertex3d(0,-1,0);
+			glVertex3d(-1,0,0);
+			glVertex3d(-1,0,0);
+			glVertex3d(0,-1,0);
+			glVertex3d(0,0,1);
+		glEnd();*/
+		glutSolidSphere(radius, 20, 20);
 		glPopMatrix();
 	}
 };

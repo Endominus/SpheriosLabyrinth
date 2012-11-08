@@ -47,7 +47,7 @@ void gfxinit()
 	// initialize the projection stack
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(90.0, 1.0, 0.01, 100);
+	gluPerspective(90.0, 1.0, 0.1, 100);
 	
 	// initialize the modelview stack
 	glMatrixMode(GL_MODELVIEW);
@@ -65,17 +65,6 @@ void gfxinit()
 class GLBox
 {
 public:
-	GLuint textureTarget;
-	float shadowMatrix[16];
-	void setupTargetTexture()
-	{
-		glBindTexture(GL_TEXTURE_2D,textureTarget);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  RESOLUTION, RESOLUTION, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	}
 	GLBox()
 	{
 		App = new sf::Window(sf::VideoMode(RESOLUTION, RESOLUTION, 32), "Spherio");
@@ -125,12 +114,6 @@ public:
 		vertPath = "Shaders/BallShader.vert";
 		fragPath = "Shaders/BallShader.frag";
 		ballProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
-		vertPath = "Shaders/ShadowShader.vert";
-		fragPath = "Shaders/ShadowShader.frag";
-		shadowProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
-		int numTex = 1;
-		glGenTextures(numTex, &textureTarget);
-		setupTargetTexture();
 
 		level = createLevel1(&ball);
 		level.resetLevel();
@@ -142,28 +125,10 @@ public:
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			updateModelviewMatrix();
-			
-			glMatrixMode(GL_MODELVIEW);
-			glPushMatrix();
-			glLoadIdentity();
-			double center[3];
-			ball.getCenter(center);
-			gluLookAt(center[0],center[1],center[2],center[0],center[1],center[2]+1,0,1,0);
-			glUseProgram(shadowProg);
-			level.display(true);
-			glMatrixMode(GL_PROJECTION);
-			glPushMatrix();
-			glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat*) &shadowMatrix);
-			glMultMatrixf(shadowMatrix);
-			glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat*) &shadowMatrix);
-			printf("%.2f %.2f %.2f %.2f\n%.2f %.2f %.2f %.2f\n%.2f %.2f %.2f %.2f\n%.2f %.2f %.2f %.2f\n\n",shadowMatrix[0],shadowMatrix[1],shadowMatrix[2],shadowMatrix[3],shadowMatrix[4],shadowMatrix[5],shadowMatrix[6],shadowMatrix[7],shadowMatrix[8],shadowMatrix[9],shadowMatrix[10],shadowMatrix[11],shadowMatrix[12],shadowMatrix[13],shadowMatrix[14],shadowMatrix[15]);
-			glPopMatrix();
-			glMatrixMode(GL_MODELVIEW);
-			glPopMatrix();
 			glUseProgram(prog);
 			setShaderVariables(prog);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			level.display(false);
+
+			level.display();
 			//for (int i = 0; i < 1; ++i)
 			//{
 			//	level[i].display();
@@ -188,7 +153,6 @@ private:
 	double tiltZ;
 	GLint prog;
 	GLint ballProg;
-	GLint shadowProg;
 	bool GL20Support;
 	Level level;
 
@@ -203,12 +167,11 @@ private:
 		//glRotated(cameraPhi, 0, 0, 1);
 		double center[3];
 		ball.getCenter(center);
-		gluLookAt(sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5,cos(cameraPhi*M_PI/180)*5, 
-			sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 
-			0, 0, 0, 0, 1, 0);
+		gluLookAt(center[0]+sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5, cos(cameraPhi*M_PI/180)*5, 
+			center[2]+sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 
+			center[0], 0, center[2], 0, 1, 0);
 		glRotated(-tiltX,0,0,1);
 		glRotated(tiltZ,1,0,0);
-		glTranslated(-center[0],-center[1],-center[2]);
 	}
 	
 	void handleEvents()
@@ -319,7 +282,7 @@ private:
 			tiltZ*=MAXTILT/size;
 		}
 
-		ball.accelerate(sin(tiltX*M_PI/180)*0.00001,-0.00001,0.00001*sin(tiltZ*M_PI/180));
+		ball.accelerate(tiltX*0.000001,-0.00001,0.000001*tiltZ);
 		//ball.testCollision(level[0]);
 		level.testCollision();
 		if (level.isLost())
@@ -389,23 +352,14 @@ private:
 		GLfloat viewMatrix[16];
 		glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
 		glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix);
-		glBindTexture(GL_TEXTURE_2D,textureTarget);
-		glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, RESOLUTION, RESOLUTION, 0);
-
+		
 		double center[3];
 		ball.getCenter( center );
 
 		if(GL20Support)
 		{
-			GLuint textureUnit =0;
-			glBindAttribLocation(shaderProg,0,"colorIndex");
-			glUniform1i(glGetUniformLocation(shaderProg, "texId"), textureUnit);
 			glUniform3f(glGetUniformLocation(shaderProg, "ballPos"),center[0], center[1], center[2]);
-			glUniform3f(glGetUniformLocation(shaderProg, "viewerPos"),center[0]+sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5,center[1]+cos(cameraPhi*M_PI/180)*5,center[2]+sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5);
 			glUniform1f(glGetUniformLocation(shaderProg, "elapsedTime"), Clock.GetElapsedTime() );
-			if(shaderProg == prog)
-				printf("%.2f %.2f %.2f %.2f\n%.2f %.2f %.2f %.2f\n%.2f %.2f %.2f %.2f\n%.2f %.2f %.2f %.2f\n\n",shadowMatrix[0],shadowMatrix[1],shadowMatrix[2],shadowMatrix[3],shadowMatrix[4],shadowMatrix[5],shadowMatrix[6],shadowMatrix[7],shadowMatrix[8],shadowMatrix[9],shadowMatrix[10],shadowMatrix[11],shadowMatrix[12],shadowMatrix[13],shadowMatrix[14],shadowMatrix[15]);
-			glUniformMatrix4fv(glGetUniformLocation(shaderProg, "shadowMatrix"), 4,false,shadowMatrix);
 		}
 		else
 		{

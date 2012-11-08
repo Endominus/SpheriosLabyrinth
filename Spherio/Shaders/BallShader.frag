@@ -1,5 +1,6 @@
 // Computes fragment colors for the model triangles.
 uniform vec3 ballPos;
+uniform vec3 viewerPos;
 uniform float elapsedTime;  //time in seconds since simulation began
 
 varying vec3 normal;
