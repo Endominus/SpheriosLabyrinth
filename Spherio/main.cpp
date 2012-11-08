@@ -1,4 +1,5 @@
 
+#include "glew/glew.h"
 #include "ShaderManager.h"
 #include <vector>
 #include <stdio.h>
@@ -6,9 +7,9 @@
 #include <SFML/Window.hpp>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "Levels.h"
+#include "Block.h"
 
-#define RESOLUTION 1024
+#define RESOLUTION 512
 
 #define TRUE 1
 #define FALSE 0
@@ -18,7 +19,6 @@
 
 // Storage space for the various transformations we'll need
 double translationMatrix[16], inverseTranslationMatrix[16], rotationMatrix[16];
-sf::Clock Clock;
 
 void
 display()
@@ -39,9 +39,6 @@ update_Modelview_Matrix()
 
 void gfxinit()
 {
-	Clock = sf::Clock();
-	Clock.Reset();
-
 	glEnable(GL_DEPTH_TEST);
 	
 	// initialize the projection stack
@@ -84,6 +81,7 @@ public:
 
 		double block1Color[3] = {1, 0, 0};
 		double block1Center[3] = {0, 0, 0};
+		level[0] = Block(block1Color, block1Center, 4, 1, 4, 0, 0);
 		double ballColor[3] = {0,1,1};
 		double ballCenter[3] = {0,3,0};
 		ball = Sphere(ballColor,ballCenter,0.314159);
@@ -114,9 +112,6 @@ public:
 		vertPath = "Shaders/BallShader.vert";
 		fragPath = "Shaders/BallShader.frag";
 		ballProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
-
-		level = createLevel1(&ball);
-		reset();
 		while (App->IsOpened())
 		{
 			App->SetActive();
@@ -127,20 +122,19 @@ public:
 			updateModelviewMatrix();
 			glUseProgram(prog);
 			setShaderVariables(prog);
-
-			level.display();
-			//for (int i = 0; i < 1; ++i)
-			//{
-			//	level[i].display();
-			//}
-			glUseProgram(ballProg);
 			setShaderVariables(ballProg);
+			for (int i = 0; i < 1; ++i)
+			{
+				level[i].display();
+			}
+			glUseProgram(ballProg);
 			ball.display();
 			App->Display();
 		}
 	}
 	
 private:
+	Block level[5];
 	bool buttonPressed[4];
 	Sphere ball;
 	sf::Window *App;
@@ -154,7 +148,6 @@ private:
 	GLint prog;
 	GLint ballProg;
 	bool GL20Support;
-	Level level;
 
 	void updateModelviewMatrix()
 	{
@@ -165,11 +158,7 @@ private:
 		//glMultMatrixd(inverseTranslationMatrix);
 		//glRotated(cameraTheta, 0, 1, 0);
 		//glRotated(cameraPhi, 0, 0, 1);
-		double center[3];
-		ball.getCenter(center);
-		gluLookAt(center[0]+sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5, cos(cameraPhi*M_PI/180)*5, 
-			center[2]+sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 
-			center[0], 0, center[2], 0, 1, 0);
+		gluLookAt(sin(cameraPhi*M_PI/180)*cos(cameraTheta*M_PI/180)*5, cos(cameraPhi*M_PI/180)*5, sin(cameraPhi*M_PI/180)*sin(cameraTheta*M_PI/180)*5, 0, 0, 0, 0, 1, 0);
 		glRotated(-tiltX,0,0,1);
 		glRotated(tiltZ,1,0,0);
 	}
@@ -213,24 +202,6 @@ private:
 			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::D)) {
 				buttonPressed[3] = false;
 			}
-			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::R)) {
-				reset();
-			}
-
-			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num1)) {
-				level = createLevel1(&ball);
-				reset();
-			}
-
-			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num2)) {
-				level = createLevel2(&ball);
-				reset();
-			}
-
-			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num3)) {
-				level = createLevel3(&ball);
-				reset();
-			}
 			
 			if (cameraLookMode && Event.Type == sf::Event::MouseMoved)
 			{
@@ -246,7 +217,7 @@ private:
 				glPopMatrix();*/
 
 				cameraTheta += deltaX*CAMERASPEED;
-				//cameraPhi -= deltaY*CAMERASPEED;
+				cameraPhi -= deltaY*CAMERASPEED;
 
 				if (cameraPhi > 180)
 					cameraPhi = 180;
@@ -287,19 +258,8 @@ private:
 			tiltZ*=MAXTILT/size;
 		}
 
-		ball.accelerate(tiltX*0.000001,-0.00001,0.000001*tiltZ);
-		//ball.testCollision(level[0]);
-		level.testCollision();
-		if (level.isLost())
-			reset();
-	}
-
-	void reset() {
-		double *cam = level.resetLevel();
-		cameraTheta = cam[0];
-		cameraPhi = cam[1];
-		tiltX = 0;
-		tiltZ = 0;
+		ball.accelerate(tiltX*0.00000001,-0.0000001,0.00000001*tiltZ);
+		ball.testCollision(level[0]);
 	}
 
 	void __glewInit(FILE * logFile)
@@ -358,13 +318,11 @@ private:
 		glGetFloatv(GL_PROJECTION_MATRIX, projMatrix);
 		glGetFloatv(GL_MODELVIEW_MATRIX, viewMatrix);
 		
-		double center[3];
-		ball.getCenter( center );
+		double *center = ball.getCenter();
 
 		if(GL20Support)
 		{
 			glUniform3f(glGetUniformLocation(shaderProg, "ballPos"),center[0], center[1], center[2]);
-			glUniform1f(glGetUniformLocation(shaderProg, "elapsedTime"), Clock.GetElapsedTime() );
 		}
 		else
 		{
@@ -379,8 +337,3 @@ int main(int argc, char **argv)
 	GLBox prog;
 	return EXIT_SUCCESS;
 }
-<<<<<<< .mine
-
-=======
-
->>>>>>> .r30
