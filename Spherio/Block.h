@@ -280,87 +280,7 @@ public:
 		//glMultMatrixd(rotationMatrix);
 
 		glColor3dv(color);
-		//glColor3d(1,1,1);
 
-//		glColor3d(1, 1, 1);
-		/*glBegin(GL_QUADS);
-			// Far face
-			glNormal3d(0,0,-1);
-			displayFaceVertex(-1, -1, -1);
-			displayFaceVertex(1, -1, -1);
-			displayFaceVertex(1, 1, -1);
-			displayFaceVertex(-1, 1, -1);
-		
-//		glColor3d(0.5, 0.5, 0.5);
-			// Near face
-			glNormal3d(0,0,1);
-			displayFaceVertex(-1, -1, 1);
-			displayFaceVertex(1, -1, 1);
-			displayFaceVertex(1, 1, 1);
-			displayFaceVertex(-1, 1, 1);
-
-//		glColor3d(1, 0, 0);
-			// Top face
-			glNormal3d(0,1,0);
-			displayFaceVertex(-1, 1, -1);
-			displayFaceVertex(1, 1, -1);
-			displayFaceVertex(1, 1, 1);
-			displayFaceVertex(-1, 1, 1);
-
-//		glColor3d(0, 1, 1);
-			// Bottom face
-			glNormal3d(0,-1,0);
-			displayFaceVertex(-1, -1, -1);
-			displayFaceVertex(1, -1, -1);
-			displayFaceVertex(1, -1, 1);
-			displayFaceVertex(-1, -1, 1);
-
-//		glColor3d(0, 1, 0);
-			// Right face
-			glNormal3d(1,0,0);
-			displayFaceVertex(1, 1, -1);
-			displayFaceVertex(1, -1, -1);
-			displayFaceVertex(1, -1, 1);
-			displayFaceVertex(1, 1, 1);
-
-//		glColor3d(1, 0, 1);
-			// Left face
-			glNormal3d(-1,0,0);
-			displayFaceVertex(-1, 1, -1);
-			displayFaceVertex(-1, -1, -1);
-			displayFaceVertex(-1, -1, 1);
-			displayFaceVertex(-1, 1, 1);
-		glEnd();
-		double d = 0.001;
-		glColor3d(1,1,1);
-		glBegin(GL_LINES);
-			glVertex3d(1+d,1+d,1+d);
-			glVertex3d(1+d,1+d,-1-d);
-			glVertex3d(1+d,1+d,-1-d);
-			glVertex3d(-1-d,1+d,-1-d);
-			glVertex3d(-1-d,1+d,-1-d);
-			glVertex3d(-1-d,1+d,1+d);
-			glVertex3d(-1-d,1+d,1+d);
-			glVertex3d(1+d,1+d,1+d);
-
-			glVertex3d(1+d,-1-d,1+d);
-			glVertex3d(1+d,-1-d,-1-d);
-			glVertex3d(1+d,-1-d,-1-d);
-			glVertex3d(-1-d,-1-d,-1-d);
-			glVertex3d(-1-d,-1-d,-1-d);
-			glVertex3d(-1-d,-1-d,1+d);
-			glVertex3d(-1-d,-1-d,1+d);
-			glVertex3d(1+d,-1-d,1+d);
-
-			glVertex3d(1+d,-1-d,1+d);
-			glVertex3d(1+d,1+d,1+d);
-			glVertex3d(1+d,-1-d,-1-d);
-			glVertex3d(1+d,1+d,-1-d);
-			glVertex3d(-1-d,-1-d,-1-d);
-			glVertex3d(-1-d,1+d,-1-d);
-			glVertex3d(-1-d,-1-d,1+d);
-			glVertex3d(-1-d,1+d,1+d);
-		glEnd();*/
 		double corners[15][4] = {{-1,1,1,1},{1,1,1,1},{-1,-1,1,1},{1,-1,1,1},{-1,1,-1,1},{1,1,-1,1},{-1,-1,-1,1},{1,-1,-1,1},{0,0,1,1},{0,0,-1,1},{0,1,0,1},{0,-1,0,1},{-1,0,0,1},{1,0,0,1},{0,0,0,1}};
 		double transformedCorners[15][4];
 		double transpose[16];
@@ -466,9 +386,12 @@ public:
 	void display(double elapsedTime)
 	{
 
-		double xOffset = deltaX*(elapsedTime-timeSoFar)/time;
-		double yOffset = deltaY*(elapsedTime-timeSoFar)/time;
-		double zOffset = deltaZ*(elapsedTime-timeSoFar)/time;
+		xOffset = deltaX*(elapsedTime-timeSoFar)/time;
+		yOffset = deltaY*(elapsedTime-timeSoFar)/time;
+		zOffset = deltaZ*(elapsedTime-timeSoFar)/time;
+
+
+
 		if ( elapsedTime-timeSoFar > time )
 
 		{
@@ -476,16 +399,19 @@ public:
 			center.x += deltaX; // This does nothing - have to change the transformation matrix.
 			center.y += deltaY;
 			center.z += deltaZ;
+
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadIdentity();
 
 			glMultMatrixd(rotationMatrix);
-			glTranslated(deltaX, deltaY, deltaZ);
+			glTranslated(xOffset, yOffset, zOffset);
 
 			glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &rotationMatrix);
 			glPopMatrix();
+			printf(" %.2f %.2f %.2f %.2f %.2f\n", rotationMatrix[12], rotationMatrix[13], rotationMatrix[14], rotationMatrix[4], rotationMatrix[5]);			
 			//printf("%.2f %.2f %.2f\n", deltaX, deltaY, deltaZ);
+
 
 			deltaX *= -1;
 			deltaY *= -1;
@@ -494,6 +420,9 @@ public:
 			yOffset = 0;
 			zOffset = 0;
 		}
+
+
+
 		//double currentMatrix[16];
 		//glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*) &currentMatrix);
 		glMatrixMode(GL_MODELVIEW);
@@ -511,9 +440,9 @@ public:
 
 		for(int i=0;i<15;i++)
 		{
-			corners[i][0] += xOffset;
-			corners[i][1] += yOffset;
-			corners[i][2] += zOffset;
+			corners[i][0] += 0;//xOffset;
+			corners[i][1] += 0;//yOffset;
+			corners[i][2] += 0;//zOffset;
 			vectorTransform(transpose, corners[i], transformedCorners[i]);
 		}
 
@@ -793,6 +722,7 @@ public:
 		double normals[6][4];
 		double transpose[16];
 		//moving
+		//printf(" %.2f %.2f %.2f %.2f %.2f\n", block.rotationMatrix[12], block.rotationMatrix[13], block.rotationMatrix[14], block.rotationMatrix[4], block.rotationMatrix[5]);
 		transposeMatrix(block.rotationMatrix, transpose);
 		double transformedCorners[15][4];
 		for(int i=0;i<15;i++)
@@ -803,8 +733,8 @@ public:
 			vectorTransform(transpose, corners[i], transformedCorners[i]);
 		}
 
-		for(int i=0;i<15;i++)
-			vectorTransform(transpose, transformedCorners[i], transformedCorners[i]);
+		//for(int i=0;i<15;i++)
+		//	vectorTransform(transpose, transformedCorners[i], transformedCorners[i]);
 		for (int j = 0; j < 6; j++)
 		{
 			subtractVectors(corners[j+8], corners[14], normals[j]);

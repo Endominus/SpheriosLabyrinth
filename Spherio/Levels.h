@@ -236,7 +236,7 @@ Level createLevel4(Sphere *ball) {
 	double colorBlock[] = {0.6, 0.6, 0.6};
 	double colorMove[] = {0.8, 0.1, 0.1};
 
-	double movingStart[4][3] =	{{2,1,12.5}, {8, -2, 12}, {14, 1, 13.5}, {10, 1, 15.5} };
+	double movingStart[4][3] =	{{2,1,12.5}, {8, -2, 12}, {14, 1, 13.5}, {10, 1, 15.5} };  //
 	double movingEnd[4][3]	=	{{2,1,2.5}, {8, 2, 12},	  {12, 1, 13.5}, {12, 1, 15.5} };  
 	double mw[] =				{2,		     2,			  2,			 2};
 	double md[] =				{1,		     2,			  1,			 1};
