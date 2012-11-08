@@ -41,8 +41,16 @@ public:
 		startPoint = start;
 
 		ball = aball;
+		startCameraTheta = 0;
+		startCameraPhi = 50;
 
 		resetLevel();
+	}
+
+	void setStartCamera( double theta, double phi )
+	{
+		startCameraPhi = phi;
+		startCameraTheta = theta;
 	}
 
 	void addGoal(double centerPoint[], double theta, double phi) {
@@ -109,7 +117,7 @@ public:
 		ball->setCenter( startPoint );
 		ball->stopBall();
 
-		double camera[2] = { 0, 50 };
+		double camera[2] = { startCameraTheta, startCameraPhi };
 		return camera;
 	}
 
@@ -160,12 +168,13 @@ Level createLevel1(Sphere *ball) {
 
 	level1.addGoal(centers[5], 0, 0);
 
+	level1.setStartCamera( -90, 50 );
 	return level1;
 }
 
 Level createLevel2(Sphere *ball) {
 	int i;
-	Point3 start = Point3(0, 1, 10);
+	Point3 start = Point3(9, 1, 10);
 	Level level2 = Level(9, 4, start, ball);
 	double centers[9][3] = {{5,0,2},{6,0,-3},{-1,0,-6},{-6,0,1},{3,0,6},{10,0,-3},{-1,0,-10},{-10,0,1},{1,0,10}};
 	double movingCenters[8][3] = {{10,2,0},{0,2,0},{-10,2,0},{0,2,0},{0,2,10},{0,2,0},{0,2,-10},{0,2,0}};
@@ -189,4 +198,27 @@ Level createLevel2(Sphere *ball) {
 	level2.addGoal(goal, 0, 0);
 
 	return level2;
+}
+
+
+Level createLevel3(Sphere *ball) {
+	int i;
+	Point3 start = Point3(2, 2, 1);
+	Level level3 = Level(7, 0, start, ball);
+
+	double goal[] = {12.5,0,11.5};
+	double centers[7][3] =  {{2,0,7.5},	{6,0,17.5}, {13, 0, 21.5}, {18.5, 0, 19.5}, {20, 0, 15.5}, {18.75,0, 12.75}, {16.5, 0, 11.5} };	
+	double w[] =		    {4,			3.5,		 3,				2.5,			2,				1.5,			1};
+	double d[] =			{15,		8* sqrt(2.0), 8,		5*sqrt(2.0),		5,				2.5*sqrt(2.0),  3};
+	double theta[] =		{0,			45,			90,				135,			0,				45,				90};
+	double colorBlock[] = {0.4, 0.4, 0.4};
+
+	for (i = 0; i < 7; i++)
+	{
+		level3.addBlock(colorBlock, centers[i], w[i], 1, d[i], theta[i], 0);
+	}
+	
+	level3.addGoal(goal, 0, 0);
+	level3.setStartCamera( -135, 50 );
+	return level3;
 }

@@ -116,7 +116,7 @@ public:
 		ballProg = shaders.buildShaderProgram(&vertPath, &fragPath, 1, 1);
 
 		level = createLevel1(&ball);
-		level.resetLevel();
+		reset();
 		while (App->IsOpened())
 		{
 			App->SetActive();
@@ -224,6 +224,11 @@ private:
 
 			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num2)) {
 				level = createLevel2(&ball);
+				reset();
+			}
+
+			if((Event.Type == sf::Event::KeyReleased) && (Event.Key.Code == sf::Key::Num3)) {
+				level = createLevel3(&ball);
 				reset();
 			}
 			
